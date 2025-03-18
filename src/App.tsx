@@ -1,6 +1,6 @@
 import {useForm} from 'react-hook-form';
 import './App.css'
-import {Box, Button, Field, Text, Input, Stack, Center} from "@chakra-ui/react";
+import {Box, Button, Field, Text, Input, Stack, Center, ProgressCircle} from "@chakra-ui/react";
 import BracketViewer from "@/components/layout/BracketViewer.tsx";
 import {useState} from "react";
 import {Sample} from "@/types/obf";
@@ -14,10 +14,10 @@ function App() {
         handleSubmit,
         formState: { errors },
     } = useForm<FormValues>()
-
-    console.log(import.meta.env.VITE_OBF_EXPORTER_ENDPOINT)
+    const [isLoading, setIsLoading] = useState(false)
 
     const onSubmit = handleSubmit(async (data) => {
+        setIsLoading(true)
         const OBFrequest = await fetch(`${import.meta.env.VITE_OBF_EXPORTER_ENDPOINT}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -25,7 +25,19 @@ function App() {
         })
         if (OBFrequest.ok) setTournamentData(await OBFrequest.json())
         else console.error("Failed to fetch tournament from exporter.")
+        setIsLoading(false)
     })
+
+    const LoadingIcon = () => {
+        return (
+            <ProgressCircle.Root value={null} size="sm">
+                <ProgressCircle.Circle>
+                    <ProgressCircle.Track />
+                    <ProgressCircle.Range />
+                </ProgressCircle.Circle>
+            </ProgressCircle.Root>
+        )
+    }
 
     return (
     <>
@@ -48,8 +60,9 @@ function App() {
                 </Stack>
             </form>
         </Box>
-        { tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{(tournamentData as Sample).event.name}</Text></Center> }
-        { tournamentData ? <BracketViewer tournamentData={tournamentData}/> : <h2>No bracket provided.</h2> }
+        { isLoading && <Center>{LoadingIcon()}</Center> }
+        { !isLoading && tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{(tournamentData as Sample).event.name}</Text></Center> }
+        { !isLoading && tournamentData && <BracketViewer tournamentData={tournamentData}/> }
     </>
     )
 }

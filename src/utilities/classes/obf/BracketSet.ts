@@ -2,6 +2,7 @@ import BracketEntrant from "./BracketEntrant";
 
 export class BracketSet {
     setId: number | undefined = undefined
+    uuid?: number | undefined = undefined
     leftEntrant: BracketEntrant | undefined
     rightEntrant: BracketEntrant | undefined
     leftEntrantResult?: "win" | "lose"
@@ -20,6 +21,7 @@ export class BracketSet {
 
     constructor(props: {
         setId: number
+        uuid?: number
         leftSet?: BracketSet
         rightSet?: BracketSet
         leftPlayer?: BracketEntrant
@@ -30,10 +32,11 @@ export class BracketSet {
         loserSet?: BracketSet
         round: number
         type?: "winners" | "losers"
-        other: never
+        other?: { [key: string]: never }
     }) {
         const {
             setId,
+            uuid,
             leftPlayer,
             rightPlayer,
             leftSet,
@@ -46,7 +49,8 @@ export class BracketSet {
             type,
             other
         } = props
-        this.setId = setId;
+        this.setId = setId
+        this.uuid = uuid
         this.leftEntrant = leftPlayer
         this.rightEntrant = rightPlayer
         this.addLeftSet(leftSet)
@@ -57,7 +61,7 @@ export class BracketSet {
         this.parentSet = parentSet
         this.round = round
         this.type = type ? type : "winners"
-        this.other = other
+        this.other = other!
     }
 
     isLeftChild(): boolean {
