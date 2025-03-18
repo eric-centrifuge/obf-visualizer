@@ -56,8 +56,7 @@ class BracketEvent {
                     if (!bracketSet.rightEntrant!.finalPlacement) return
 
                     const setMatch = sets.find((set) => {
-                       return this.getEntrantById(set.entrant1ID)?.entrantTag === this.getEntrantById(bracketSet.leftEntrant!.entrantID)?.entrantTag
-                        && this.getEntrantById(set.entrant2ID)?.entrantTag === this.getEntrantById(bracketSet.rightEntrant!.entrantID)?.entrantTag
+                       return `${set.entrant1ID}` === `${bracketSet.leftEntrant!.entrantID}` && `${set.entrant2ID}` === `${bracketSet.rightEntrant!.entrantID}`
                     })
 
                     if (setMatch) {
@@ -66,11 +65,11 @@ class BracketEvent {
                         bracketSet.updateScore("right", setMatch.entrant2Score)
                         bracketSet.advanceWinner(setMatch.entrant1Score > setMatch.entrant2Score ? "left" : "right")
                     } else {
-                        const setMatch = sets.find((set) => set.entrant2ID === bracketSet.leftEntrant!.entrantID && set.entrant1ID === bracketSet.rightEntrant!.entrantID)
+                        const setMatch = sets.find((set) => `${set.entrant2ID}` === `${bracketSet.leftEntrant!.entrantID}` || `${set.entrant1ID}` === `${bracketSet.rightEntrant!.entrantID}`)
                         if (setMatch) {
-                            bracketSet.updateScore("left", setMatch.entrant2Score)
-                            bracketSet.updateScore("right", setMatch.entrant1Score)
-                            bracketSet.advanceWinner(setMatch.entrant2Score > setMatch.entrant1Score ? "left" : "right")
+                            bracketSet.updateScore("left", setMatch.entrant1Score)
+                            bracketSet.updateScore("right", setMatch.entrant2Score)
+                            bracketSet.advanceWinner(setMatch.entrant1Score > setMatch.entrant2Score ? "left" : "right")
                         }
                     }
                 }
@@ -78,8 +77,8 @@ class BracketEvent {
         }
 
         advanceSets(this.getAllWinnersSets())
-        advanceSets(this.getAllLosersSets())
         if (this.losersRoot) {
+            advanceSets(this.getAllLosersSets())
             advanceSets([this.losersRoot!.leftSet!])
             advanceSets([this.losersRoot!])
             if (this.winnersRoot) advanceSets([this.winnersRoot!])

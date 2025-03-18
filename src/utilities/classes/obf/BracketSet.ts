@@ -117,13 +117,11 @@ export class BracketSet {
     setLeftEntrant(entrant: BracketEntrant | undefined) {
         if (!entrant) return
         this.leftEntrant = entrant
-        this.leftEntrant.setName(entrant.entrantTag)
     }
 
     setRightEntrant(entrant: BracketEntrant | undefined) {
         if (!entrant) return
         this.rightEntrant = entrant
-        this.rightEntrant.setName(entrant.entrantTag)
     }
 
     setEntrant(entrant: BracketEntrant | undefined) {

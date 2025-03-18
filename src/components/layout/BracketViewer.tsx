@@ -97,7 +97,7 @@ const BracketViewer = (props: {
                                 flexGrow={1}
                                 whiteSpace={"nowrap"}
                                 pos={"relative"}>
-                                  {set.leftEntrant.entrantTag.slice(0, characterLimit)} {set.setId === bracket.winnersRoot!.setId && set.entrant1Result === "win" && `👑`}
+                                  {set.leftEntrant.entrantTag ? set.leftEntrant.entrantTag.slice(0, characterLimit) : `??? (Seed ${set.leftEntrant.initialSeed})`} {set.setId === bracket.winnersRoot!.setId && set.entrant1Result === "win" && `👑`}
                               </Text>
                               <Box
                                 ml={"auto"}
@@ -129,7 +129,7 @@ const BracketViewer = (props: {
                                   flexGrow={1}
                                   whiteSpace={"nowrap"}
                                   pos={"relative"}>
-                                    { set.rightEntrant.entrantTag.slice(0, characterLimit) } {set.setId === bracket.winnersRoot!.setId && set.entrant2Result === "win" && `👑`}
+                                    { set.rightEntrant.entrantTag ? set.rightEntrant.entrantTag.slice(0, characterLimit) : `??? (Seed ${set.rightEntrant.initialSeed})` } {set.setId === bracket.winnersRoot!.setId && set.entrant2Result === "win" && `👑`}
                                 </Text>
                                 <Box
                                   ml={"auto"}
