@@ -8,7 +8,6 @@ import {Sample} from "@/types/obf";
 interface FormValues { url: string }
 
 function App() {
-    const OBFExporterEndpoint = "http://localhost:3015/obf"
     const [tournamentData, setTournamentData] = useState(undefined)
     const {
         register,
@@ -16,8 +15,10 @@ function App() {
         formState: { errors },
     } = useForm<FormValues>()
 
+    console.log(import.meta.env.VITE_OBF_EXPORTER_ENDPOINT)
+
     const onSubmit = handleSubmit(async (data) => {
-        const OBFrequest = await fetch(`${OBFExporterEndpoint}`, {
+        const OBFrequest = await fetch(`${import.meta.env.VITE_OBF_EXPORTER_ENDPOINT}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({bracket: data.url})
