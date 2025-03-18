@@ -3,25 +3,27 @@ export class BracketEntrant {
     entrantTag = ""
     initialSeed: number
     finalPlacement?: number
-    record = [0, 0]
-    other: { [key: string]: any }
+    other: { [key: string]: never }
 
     constructor(props: {
         entrantID: number | string
         initialSeed?: number
         entrantTag: string
-        other?: any
+        finalPlacement?: number
+        other?: never
     }) {
         const {
             entrantID,
             initialSeed,
             entrantTag,
+            finalPlacement,
             other
         } = props
         this.entrantID = entrantID
         this.initialSeed = initialSeed || 0
         this.entrantTag = entrantTag
-        this.other = other
+        this.finalPlacement = finalPlacement || 0
+        this.other = other!
     }
 
     setSeed(seed: number) {
@@ -32,8 +34,8 @@ export class BracketEntrant {
         this.entrantTag = name
     }
 
-    setMetaData(data: { [key: string]: any }) {
-        this.other = {...this.other, ...data}
+    setMetaData(data: { [key: string]: never }) {
+        this.other = {...this.other!, ...data}
     }
 }
 

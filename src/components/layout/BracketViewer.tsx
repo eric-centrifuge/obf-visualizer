@@ -17,9 +17,11 @@ const BracketViewer = (props: {
             entrantID: entrant.entrantID,
             initialSeed: entrant.initialSeed,
             entrantTag: entrant.entrantTag,
+            finalPlacement: entrant.finalPlacement,
             other: entrant.other
         })),
-        layout: tournamentData.event.tournamentStructure
+        layout: tournamentData.event.tournamentStructure,
+        sets: tournamentData.sets
     })
 
     const SetTemplate = (set: BracketSet) => {
@@ -91,19 +93,21 @@ const BracketViewer = (props: {
                             set.leftEntrant &&
                             <Box display={"flex"} w={"100%"} h={"100%"}>
                               <Text
+                                style={{textDecoration: set.entrant1Result === "lose" ? "line-through" : "none"}}
                                 flexGrow={1}
                                 whiteSpace={"nowrap"}
                                 pos={"relative"}>
-                                  {set.leftEntrant.entrantTag.slice(0, characterLimit)}
+                                  {set.leftEntrant.entrantTag.slice(0, characterLimit)} {set.setId === bracket.winnersRoot!.setId && set.entrant1Result === "win" && `👑`}
                               </Text>
                               <Box
                                 ml={"auto"}
                                 backgroundColor={"#ff6200"}
                                 px={2}
+                                fontWeight={"bold"}
                                 border={`2px solid ${baseColor}`}
                                 borderBottom={`1px solid ${baseColor}`}
                                 borderTopRightRadius={`${borderRadius}px`}>
-                                  {set.leftEntrant.record[0]}
+                                  {set.entrant1Score}
                               </Box>
                             </Box>
                         }
@@ -121,19 +125,21 @@ const BracketViewer = (props: {
                             set.rightEntrant &&
                             <Box display={"flex"} w={"100%"} h={"100%"}>
                                 <Text
+                                  style={{textDecoration: set.entrant2Result === "lose" ? "line-through" : "none"}}
                                   flexGrow={1}
                                   whiteSpace={"nowrap"}
                                   pos={"relative"}>
-                                    {set.rightEntrant.entrantTag.slice(0, characterLimit)}
+                                    { set.rightEntrant.entrantTag.slice(0, characterLimit) } {set.setId === bracket.winnersRoot!.setId && set.entrant2Result === "win" && `👑`}
                                 </Text>
                                 <Box
                                   ml={"auto"}
                                   backgroundColor={"#ff6200"}
                                   px={2}
+                                  fontWeight={"bold"}
                                   border={`2px solid ${baseColor}`}
                                   borderTop={`1px solid ${baseColor}`}
                                   borderBottomRightRadius={`${borderRadius}px`}>
-                                    {set.rightEntrant.record[0]}
+                                    {set.entrant2Score}
                                 </Box>
                             </Box>
                         }

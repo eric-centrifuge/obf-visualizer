@@ -2,13 +2,13 @@ import BracketEntrant from "./BracketEntrant";
 
 export class BracketSet {
     setId: number | undefined = undefined
-    uuid?: number | undefined = undefined
+    uuid?: number | string | undefined = undefined
     leftEntrant: BracketEntrant | undefined
     rightEntrant: BracketEntrant | undefined
-    leftEntrantResult?: "win" | "lose"
-    rightEntrantResult?: "win" | "lose"
-    score: number[] = [0, 0]
-    winner: BracketEntrant | undefined = undefined
+    entrant1Result?: "win" | "lose"
+    entrant2Result?: "win" | "lose"
+    entrant1Score: number = 0
+    entrant2Score: number = 0
     leftSet: BracketSet | undefined
     rightSet: BracketSet | undefined
     parentSet
@@ -135,17 +135,23 @@ export class BracketSet {
     setParentSet(parent: BracketSet) { if (parent) this.parentSet = parent }
     setMetaData(data: {[key: string]: never}) { this.other = {...this.other, ...data} }
 
-    updateScore(score: number, winner: BracketEntrant) {
-        if (!this.leftEntrant && !this.rightEntrant) return
-        if (winner.initialSeed === this.leftEntrant!.initialSeed) this.score[0] = score
-        else this.score[1] = score
+    updateScore(entrant: "left" | "right", score: number) {
+        if (entrant === "left") this.entrant1Score = score
+        if (entrant === "right") this.entrant2Score = score
     }
 
-    advanceWinner(winner: BracketEntrant) {
-        if (!this.leftEntrant && !this.rightEntrant && !this.parentSet) return
-        if (this.parentSet!.leftSet) if (this.isLeftChild() && !this.parentSet!.leftEntrant!.initialSeed) this.parentSet!.setLeftEntrant(winner)
-        else if (this.parentSet!.rightSet) if (this.isRightChild() && !this.parentSet!.rightEntrant!.initialSeed) this.parentSet!.setRightEntrant(winner)
-        this.winner = winner
+    advanceWinner(entrant: "left" | "right") {
+        if (entrant === "left") {
+            this.entrant1Result = "win"
+            this.entrant2Result = "lose"
+            if (this.parentSet) this.parentSet.setEntrant(this.leftEntrant)
+            if (this.loserSet) this.loserSet.setEntrant(this.rightEntrant)
+        } else {
+            this.entrant1Result = "lose"
+            this.entrant2Result = "win"
+            if (this.parentSet) this.parentSet.setEntrant(this.rightEntrant)
+            if (this.loserSet) this.loserSet.setEntrant(this.leftEntrant)
+        }
     }
 }
 

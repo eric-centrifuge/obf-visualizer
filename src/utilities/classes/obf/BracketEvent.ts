@@ -1,5 +1,6 @@
 import BracketSet from "./BracketSet";
 import BracketEntrant from "./BracketEntrant";
+import {ISet} from "@/types/obf";
 
 interface BracketMetaData {
     date?: string
@@ -21,12 +22,14 @@ class BracketEvent {
 
     constructor(props: {
         name?: string
+        sets?: ISet[]
         entrants: BracketEntrant[]
         layout: string
         metaData?: BracketMetaData
     }) {
         const {
             name,
+            sets,
             entrants,
             layout,
             metaData
@@ -37,9 +40,50 @@ class BracketEvent {
         this.entrants = entrants
         this.root = this.createBracket()
         this.winnersRoot = this.root
-        this.addMetaData(metaData)
+        if (metaData) this.addMetaData(metaData)
         this.assignEntrants()
         if (layout.toLowerCase() === 'double elimination') this.root = this.attachLosersBracket(this.root!)
+        if (Array.isArray(sets)) this.mapSets(sets)
+    }
+
+    mapSets (sets: ISet[]) {
+        if (!sets.length) return
+
+        const advanceSets = (bracketSets: BracketSet[]) => {
+            bracketSets.forEach((bracketSet) => {
+                if (bracketSet.leftEntrant && bracketSet.rightEntrant) {
+                    if (!bracketSet.leftEntrant!.finalPlacement) return
+                    if (!bracketSet.rightEntrant!.finalPlacement) return
+
+                    const setMatch = sets.find((set) => {
+                       return this.getEntrantById(set.entrant1ID)?.entrantTag === this.getEntrantById(bracketSet.leftEntrant!.entrantID)?.entrantTag
+                        && this.getEntrantById(set.entrant2ID)?.entrantTag === this.getEntrantById(bracketSet.rightEntrant!.entrantID)?.entrantTag
+                    })
+
+                    if (setMatch) {
+                        bracketSet.uuid = setMatch.setID
+                        bracketSet.updateScore("left", setMatch.entrant1Score)
+                        bracketSet.updateScore("right", setMatch.entrant2Score)
+                        bracketSet.advanceWinner(setMatch.entrant1Score > setMatch.entrant2Score ? "left" : "right")
+                    } else {
+                        const setMatch = sets.find((set) => set.entrant2ID === bracketSet.leftEntrant!.entrantID && set.entrant1ID === bracketSet.rightEntrant!.entrantID)
+                        if (setMatch) {
+                            bracketSet.updateScore("left", setMatch.entrant2Score)
+                            bracketSet.updateScore("right", setMatch.entrant1Score)
+                            bracketSet.advanceWinner(setMatch.entrant2Score > setMatch.entrant1Score ? "left" : "right")
+                        }
+                    }
+                }
+            })
+        }
+
+        advanceSets(this.getAllWinnersSets())
+        advanceSets(this.getAllLosersSets())
+        if (this.losersRoot) {
+            advanceSets([this.losersRoot!.leftSet!])
+            advanceSets([this.losersRoot!])
+            if (this.winnersRoot) advanceSets([this.winnersRoot!])
+        }
     }
 
     assignEntrants () {
@@ -74,12 +118,17 @@ class BracketEvent {
         }
     }
 
+    getEntrantById (id: string | number) {
+        if (!this.entrants) return undefined
+        const entrantIndex = this.entrants?.findIndex((entrant) => entrant.entrantID === id)
+        return this.entrants![entrantIndex] || undefined
+    }
+
     createBracket(size: number = this.numberOfEntrants) {
         if (size < 2) return
 
         let currentRound = 1
         let previousRoundSets = [] as unknown as BracketSet[]
-        let root
 
         const winnersSets = []
         const numberOfRounds = this.calculateRounds(size)
@@ -133,9 +182,7 @@ class BracketEvent {
             currentRound++
         }
 
-        root = winnersSets && winnersSets.slice(-1)![0]
-
-        return root
+        return winnersSets && winnersSets.slice(-1)![0]
     }
 
     orderSeeds () {
@@ -432,7 +479,7 @@ class BracketEvent {
     }
 
     isPowerOf2(x: number) { return (Math.log2(x) % 1 === 0) }
-    addMetaData(data: any) { this.other = Object.assign(this.other, data) }
+    addMetaData(data: BracketMetaData) { this.other = Object.assign(this.other, data) }
 }
 
 export default BracketEvent
