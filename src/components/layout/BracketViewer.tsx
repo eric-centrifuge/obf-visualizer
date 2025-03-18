@@ -1,4 +1,4 @@
-import {Box, Heading, Text} from "@chakra-ui/react"
+import {Box, Center, Heading, Text} from "@chakra-ui/react"
 import BracketEvent from "../../utilities/classes/obf/BracketEvent"
 import BracketEntrant from "../../utilities/classes/obf/BracketEntrant"
 import {Sample} from "@/types/obf"
@@ -24,6 +24,7 @@ const BracketViewer = (props: {
 
     const SetTemplate = (set: BracketSet) => {
         const isRoot = bracket.winnersRoot?.setId === set.setId || bracket.losersRoot?.setId === set.setId || bracket.root?.setId === set.setId
+        const isSingleElim = bracket.layout.toLowerCase() === "single elimination"
         const nameCardHeight = 30
         const matchNumberWidth = 30
         const width = 150
@@ -40,7 +41,7 @@ const BracketViewer = (props: {
             backgroundColor: "#FFF",
             zIndex: -1,
         } : {}
-        const verticalLinkStyle = !isRoot ? {
+        const verticalLinkStyle = !isRoot && bracket.winnersRoot?.leftSet?.setId !== set.setId || isSingleElim ? {
             content: '""',
             position: 'absolute',
             top: set.isLeftChild() ? "50%" : "-48%",
@@ -140,7 +141,16 @@ const BracketViewer = (props: {
     return (
         <>
             {
-                bracket.layout.toLowerCase() === "single elimination" &&
+                bracket.layout.toLowerCase() !== "single elimination" &&
+                bracket.layout.toLowerCase() !== "double elimination" &&
+                <Center>
+                  <Heading>
+                    <Text display={"inline-block"} color={"#ff6200"}>{bracket.layout.toUpperCase()}</Text> brackets not supported.
+                  </Heading>
+                </Center>
+            }
+            {
+            bracket.layout.toLowerCase() === "single elimination" &&
                   <>
                     <Heading py={5}>SINGLE ELIMINATION</Heading>
                     <Box as={"ul"} display={"flex"}>
