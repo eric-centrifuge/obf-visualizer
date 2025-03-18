@@ -8,5 +8,5 @@ Prerequisites
 
 ## Setup
 
-1. [Add the URL to the OBF exporter](https://github.com/eric-centrifuge/obf-visualizer/blob/e7e75a4acd6caf45f0c66a9ae9430cd23c575576/.example.env#L1) in `.example.env` and rename the file to `.env`.
+1. [Add the URL to the OBF exporter](https://github.com/eric-centrifuge/obf-visualizer/blob/master/.example.env#L1) in `.example.env` and rename the file to `.env`.
 2. Start project with `npm run dev`.
