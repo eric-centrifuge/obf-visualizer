@@ -27,14 +27,14 @@ const BracketViewer = (props: {
         const isSingleElim = bracket.layout.toLowerCase() === "single elimination"
         const nameCardHeight = 30
         const matchNumberWidth = 30
-        const width = 150
-        const textPadding = 15
+        const borderRadius = 7
+        const width = 175
         const characterLimit = 16
         const matchNumberBG = "#ff6200"
         const horizontalLinkStyle = !isRoot ? {
             content: '""',
             position: 'absolute',
-            top: "50%",
+            top: "48%",
             left: "50%",
             width: "100%",
             height: "2px",
@@ -44,7 +44,7 @@ const BracketViewer = (props: {
         const verticalLinkStyle = !isRoot && bracket.winnersRoot?.leftSet?.setId !== set.setId || isSingleElim ? {
             content: '""',
             position: 'absolute',
-            top: set.isLeftChild() ? "50%" : "-48%",
+            top: set.isLeftChild() ? "50%" : "-50%",
             left: "150%",
             height: "100%",
             width: "2px",
@@ -67,8 +67,8 @@ const BracketViewer = (props: {
                     w={`${matchNumberWidth}px`}
                     backgroundColor={matchNumberBG}
                     border={`2px solid ${baseColor}`}
-                    borderTopLeftRadius={"7px"}
-                    borderBottomLeftRadius={"7px"}>
+                    borderTopLeftRadius={`${borderRadius}px`}
+                    borderBottomLeftRadius={`${borderRadius}px`}>
                     <Box
                         h={"100%"}
                         w={"100%"}
@@ -80,30 +80,64 @@ const BracketViewer = (props: {
                 </Box>
                 <Box display={"flex"} flexDir={"column"}>
                     <Box
-                        pr={`${textPadding}px`}
-                        pl={`${textPadding / 2}px`}
                         h={nameCardHeight}
                         w={width}
                         display={"flex"}
                         alignItems={"center"}
                         color={"#000"}
                         backgroundColor={baseColor}
-                        borderTopRightRadius={"7px"}>
-                        {set.leftEntrant && <Text whiteSpace={"nowrap"} pos={"relative"} zIndex={1}>{set.leftEntrant.entrantTag.slice(0, characterLimit)}</Text>}
-                        {set.leftWinnerSet && <Text whiteSpace={"nowrap"} pos={"relative"} zIndex={1}>Loser of {set.leftWinnerSet.setId}</Text>}
+                        borderTopRightRadius={`${borderRadius}px`}>
+                        {
+                            set.leftEntrant &&
+                            <Box display={"flex"} w={"100%"} h={"100%"}>
+                              <Text
+                                flexGrow={1}
+                                whiteSpace={"nowrap"}
+                                pos={"relative"}>
+                                  {set.leftEntrant.entrantTag.slice(0, characterLimit)}
+                              </Text>
+                              <Box
+                                ml={"auto"}
+                                backgroundColor={"#ff6200"}
+                                px={2}
+                                border={`2px solid ${baseColor}`}
+                                borderBottom={`1px solid ${baseColor}`}
+                                borderTopRightRadius={`${borderRadius}px`}>
+                                  {set.leftEntrant.record[0]}
+                              </Box>
+                            </Box>
+                        }
+                        {!set.leftEntrant && set.leftWinnerSet && <Text whiteSpace={"nowrap"} pos={"relative"} zIndex={1}>Loser of {set.leftWinnerSet.setId}</Text>}
                     </Box>
                     <Box
-                        pr={`${textPadding}px`}
-                        pl={`${textPadding / 2}px`}
                         h={nameCardHeight}
                         w={width}
                         display={"flex"}
                         alignItems={"center"}
                         color={"#000"}
                         backgroundColor={baseColor}
-                        borderBottomRightRadius={"7px"}>
-                        {set.rightEntrant && <Text whiteSpace={"nowrap"} pos={"relative"} zIndex={1}>{set.rightEntrant.entrantTag.slice(0, characterLimit)}</Text>}
-                        {set.rightWinnerSet && <Text whiteSpace={"nowrap"} pos={"relative"} zIndex={1}>Loser of {set.rightWinnerSet.setId}</Text>}
+                        borderBottomRightRadius={`${borderRadius}px`}>
+                        {
+                            set.rightEntrant &&
+                            <Box display={"flex"} w={"100%"} h={"100%"}>
+                                <Text
+                                  flexGrow={1}
+                                  whiteSpace={"nowrap"}
+                                  pos={"relative"}>
+                                    {set.rightEntrant.entrantTag.slice(0, characterLimit)}
+                                </Text>
+                                <Box
+                                  ml={"auto"}
+                                  backgroundColor={"#ff6200"}
+                                  px={2}
+                                  border={`2px solid ${baseColor}`}
+                                  borderTop={`1px solid ${baseColor}`}
+                                  borderBottomRightRadius={`${borderRadius}px`}>
+                                    {set.rightEntrant.record[0]}
+                                </Box>
+                            </Box>
+                        }
+                        {!set.rightEntrant && set.rightWinnerSet && <Text whiteSpace={"nowrap"} pos={"relative"} zIndex={1}>Loser of {set.rightWinnerSet.setId}</Text>}
                     </Box>
                 </Box>
             </Box>
