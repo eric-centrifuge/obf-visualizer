@@ -65,11 +65,11 @@ class BracketEvent {
                         bracketSet.updateScore("right", setMatch.entrant2Score)
                         bracketSet.advanceWinner(setMatch.entrant1Score > setMatch.entrant2Score ? "left" : "right")
                     } else {
-                        const setMatch = sets.find((set) => `${set.entrant2ID}` === `${bracketSet.leftEntrant!.entrantID}` || `${set.entrant1ID}` === `${bracketSet.rightEntrant!.entrantID}`)
+                        const setMatch = sets.find((set) => `${set.entrant2ID}` === `${bracketSet.leftEntrant!.entrantID}`)
                         if (setMatch) {
-                            bracketSet.updateScore("left", setMatch.entrant1Score)
-                            bracketSet.updateScore("right", setMatch.entrant2Score)
-                            bracketSet.advanceWinner(setMatch.entrant1Score > setMatch.entrant2Score ? "left" : "right")
+                            bracketSet.updateScore("left", setMatch.entrant2Score)
+                            bracketSet.updateScore("right", setMatch.entrant1Score)
+                            bracketSet.advanceWinner(bracketSet.entrant1Score > bracketSet.entrant2Score ? "left" : "right")
                         }
                     }
                 }
