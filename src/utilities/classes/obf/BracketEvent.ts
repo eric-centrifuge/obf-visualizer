@@ -1,6 +1,6 @@
 import BracketSet from "./BracketSet";
 import BracketEntrant from "./BracketEntrant";
-import {ISet} from "@/types/obf";
+import {ISet} from "../../../types/obf";
 
 interface BracketMetaData {
     date?: string
@@ -10,7 +10,7 @@ interface BracketMetaData {
 class BracketEvent {
     name?: string
     numberOfEntrants = 3
-    root
+    root: BracketSet
     winnersRoot?: BracketSet
     losersRoot?: BracketSet
     entrants?: Array<BracketEntrant>
@@ -38,51 +38,40 @@ class BracketEvent {
         this.numberOfEntrants = entrants.length
         this.layout = layout
         this.entrants = entrants
-        this.root = this.createBracket()
+        this.root = this.createBracket()!
         this.winnersRoot = this.root
         if (metaData) this.addMetaData(metaData)
         this.assignEntrants()
         if (layout.toLowerCase() === 'double elimination') this.root = this.attachLosersBracket(this.root!)
-        if (Array.isArray(sets)) this.mapSets(sets)
+        if (sets?.length) this.mapSets(sets)
     }
 
     mapSets (sets: ISet[]) {
-        if (!sets.length) return
+        sets
+            .forEach((set, index) => {
+                const bracketSet = this.getSetById(index + 1)
+                if (bracketSet && set.status === "completed") {
+                    bracketSet.uuid = set.setID
+                    bracketSet.status = "completed"
+                    const entrant1 = bracketSet.leftEntrant!.entrantID === set.entrant1ID ? bracketSet.leftEntrant! : bracketSet.rightEntrant!
+                    const entrant2 = bracketSet.leftEntrant!.entrantID === set.entrant2ID ? bracketSet.leftEntrant! : bracketSet.rightEntrant!
+                    bracketSet.updateScore(entrant1!.entrantID, set.entrant1Score)
+                    bracketSet.updateScore(entrant2!.entrantID, set.entrant2Score)
+                    bracketSet.advanceWinner(bracketSet.entrant1Score > bracketSet.entrant2Score ? "left" : "right")
+                }
 
-        const advanceSets = (bracketSets: BracketSet[]) => {
-            bracketSets.forEach((bracketSet) => {
-                if (bracketSet.leftEntrant && bracketSet.rightEntrant) {
-                    if (!bracketSet.leftEntrant!.finalPlacement) return
-                    if (!bracketSet.rightEntrant!.finalPlacement) return
-
-                    const setMatch = sets.find((set) => {
-                       return `${set.entrant1ID}` === `${bracketSet.leftEntrant!.entrantID}` && `${set.entrant2ID}` === `${bracketSet.rightEntrant!.entrantID}`
-                    })
-
-                    if (setMatch) {
-                        bracketSet.uuid = setMatch.setID
-                        bracketSet.updateScore("left", setMatch.entrant1Score)
-                        bracketSet.updateScore("right", setMatch.entrant2Score)
-                        bracketSet.advanceWinner(setMatch.entrant1Score > setMatch.entrant2Score ? "left" : "right")
-                    } else {
-                        const setMatch = sets.find((set) => `${set.entrant2ID}` === `${bracketSet.leftEntrant!.entrantID}`)
-                        if (setMatch) {
-                            bracketSet.updateScore("left", setMatch.entrant2Score)
-                            bracketSet.updateScore("right", setMatch.entrant1Score)
-                            bracketSet.advanceWinner(bracketSet.entrant1Score > bracketSet.entrant2Score ? "left" : "right")
-                        }
+                if (this.root.status === "pending") {
+                    if (this.root.leftEntrant && this.root.rightEntrant) {
+                        const finals = sets.slice(-1)[0]
+                        this.root.uuid = finals.setID
+                        const entrant1 = this.root.leftEntrant!.entrantID === finals.entrant1ID ? this.root.leftEntrant! : this.root.rightEntrant!
+                        const entrant2 = this.root.leftEntrant!.entrantID === finals.entrant2ID ? this.root.leftEntrant! : this.root.rightEntrant!
+                        this.root.updateScore(entrant1!.entrantID, finals.entrant1Score)
+                        this.root.updateScore(entrant2!.entrantID, finals.entrant2Score)
+                        this.root.advanceWinner(this.root.entrant1Score > this.root.entrant2Score ? "left" : "right")
                     }
                 }
             })
-        }
-
-        advanceSets(this.getAllWinnersSets())
-        if (this.losersRoot) {
-            advanceSets(this.getAllLosersSets())
-            advanceSets([this.losersRoot!.leftSet!])
-            advanceSets([this.losersRoot!])
-            if (this.winnersRoot) advanceSets([this.winnersRoot!])
-        }
     }
 
     assignEntrants () {
@@ -91,12 +80,12 @@ class BracketEvent {
         const round2Sets = this.getSetsByRound(2, {type: "winners"})
         const weavedAndPairedEntrants =
             this.weaveEntrants()
-            .map((entrant, index, array) => !(index % 2) ? [entrant, array[index + 1]] : undefined)
-            .filter((set) => set)
+                .map((entrant, index, array) => !(index % 2) ? [entrant, array[index + 1]] : undefined)
+                .filter((set) => set)
         const byes =
             weavedAndPairedEntrants
-            .filter((set) => set && !set[1])
-            .map((set) => set![0])
+                .filter((set) => set && !set[1])
+                .map((set) => set![0])
 
         round1Sets
             .forEach((set: BracketSet, index) => {

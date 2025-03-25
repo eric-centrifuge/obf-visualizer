@@ -16,6 +16,7 @@ export class BracketSet {
     rightWinnerSet: BracketSet | undefined
     loserSet: BracketSet | undefined
     round: number
+    status: "started" | "pending" | "completed"
     type: "winners" | "losers"
     other: { [key: string]: never }
 
@@ -32,6 +33,7 @@ export class BracketSet {
         loserSet?: BracketSet
         round: number
         type?: "winners" | "losers"
+        status?: "started" | "completed" | "pending"
         other?: { [key: string]: never }
     }) {
         const {
@@ -47,6 +49,7 @@ export class BracketSet {
             loserSet,
             round,
             type,
+            status,
             other
         } = props
         this.setId = setId
@@ -61,6 +64,7 @@ export class BracketSet {
         this.parentSet = parentSet
         this.round = round
         this.type = type ? type : "winners"
+        this.status = status ? status : "pending"
         this.other = other!
     }
 
@@ -133,9 +137,10 @@ export class BracketSet {
     setParentSet(parent: BracketSet) { if (parent) this.parentSet = parent }
     setMetaData(data: {[key: string]: never}) { this.other = {...this.other, ...data} }
 
-    updateScore(entrant: "left" | "right", score: number) {
-        if (entrant === "left") this.entrant1Score = score
-        if (entrant === "right") this.entrant2Score = score
+    updateScore(entrantId: string, score: number) {
+        if (entrantId === `${this.leftEntrant!.entrantID}`) this.entrant1Score = score
+        else if (entrantId === `${this.rightEntrant!.entrantID}`) this.entrant2Score = score
+        else return
     }
 
     advanceWinner(entrant: "left" | "right") {

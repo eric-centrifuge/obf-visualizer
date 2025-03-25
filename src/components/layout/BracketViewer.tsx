@@ -1,76 +1,92 @@
-import {Box, Center, Heading, Text} from "@chakra-ui/react"
+import {Box, Center, Container, Heading, Text} from "@chakra-ui/react"
 import BracketEvent from "../../utilities/classes/obf/BracketEvent"
 import BracketEntrant from "../../utilities/classes/obf/BracketEntrant"
 import {Sample} from "@/types/obf"
 import BracketSet from "@/utilities/classes/obf/BracketSet.ts";
 
 const BracketViewer = (props: {
-    onMatchClick?: () => void
-    tournamentData: Sample | {[key: string]: never}
+    onMatchClick?: (set: BracketSet) => void
+    tournament: Sample | {[key: string]: never}
 }) => {
-    const {tournamentData} = props
-    const entrants = tournamentData.entrants
-    const baseColor = "#FFF"
+    const { onMatchClick } = props
+    const {tournament} = props
+    const entrants = tournament.entrants
+    const baseColor = "chakra-body-bg"
     const bracket = new BracketEvent({
-        name: tournamentData.event.name,
         entrants: entrants.map((entrant) => new BracketEntrant({
             entrantID: entrant.entrantID,
             initialSeed: entrant.initialSeed,
             entrantTag: entrant.entrantTag,
-            finalPlacement: entrant.finalPlacement,
-            other: entrant.other
+            other: entrant.other,
+            finalPlacement: entrant.finalPlacement || 0,
         })),
-        layout: tournamentData.event.tournamentStructure,
-        sets: tournamentData.sets
+        sets: tournament.sets || [],
+        layout: tournament.event.tournamentStructure || ""
     })
 
     const SetTemplate = (set: BracketSet) => {
         const isRoot = bracket.winnersRoot?.setId === set.setId || bracket.losersRoot?.setId === set.setId || bracket.root?.setId === set.setId
-        const isSingleElim = bracket.layout.toLowerCase() === "single elimination"
         const nameCardHeight = 30
+        const nameCardBackgroundColor = "#FFF"
+        const nameCardTextColor = "#000"
         const matchNumberWidth = 30
         const borderRadius = 7
-        const width = 175
-        const characterLimit = 16
-        const matchNumberBG = "#ff6200"
+        const width = 215
+        const lineWidth = 2
+        const margin = 20
+        const highlightColor = "#ff6200"
+        const round1Sets = bracket.getSetsByRound(1, {type: set.type})
+        const mixedRound1Sets = round1Sets.some((round1Set) => !round1Set.getSibling()) && round1Sets.some((round1Set) => round1Set.getSibling())
+        const offset = (mixedRound1Sets && !set.getSibling() && set.round < 2 && (nameCardHeight * 2) + (margin * 2)) || 0
+
         const horizontalLinkStyle = !isRoot ? {
             content: '""',
             position: 'absolute',
-            top: "48%",
-            left: "50%",
-            width: "100%",
-            height: "2px",
-            backgroundColor: "#FFF",
-            zIndex: -1,
-        } : {}
-        const verticalLinkStyle = !isRoot && bracket.winnersRoot?.leftSet?.setId !== set.setId || isSingleElim ? {
-            content: '""',
-            position: 'absolute',
-            top: set.isLeftChild() ? "50%" : "-50%",
-            left: "150%",
-            height: "100%",
-            width: "2px",
-            backgroundColor: "#FFF",
+            top: `${nameCardHeight}px`,
+            left: `${width + lineWidth}px`,
+            width: `${(width/2)}px`,
+            height: `${lineWidth}px`,
+            backgroundColor: "#ff6200",
             zIndex: -1,
         } : {}
 
+        const verticalLinkStyle = {
+            content: '""',
+            position: 'absolute',
+            display: "inline-block",
+            height: `${nameCardHeight/2}px`,
+            left: `${(width * 1.5)}px`,
+            top: set.isLeftChild() ? `${(nameCardHeight * 1.3)}px` : "",
+            bottom: set.isRightChild() ? `22px` : "",
+            transform: "translateY(-50%)",
+            width: `${lineWidth}px`,
+            backgroundColor: "#ff6200",
+            zIndex: -1,
+        }
+
         return (
             <Box
+                onClick={() => onMatchClick && (tournament.event as unknown as {state: string}).state !== "complete" && onMatchClick(set)}
                 key={set.setId}
                 zIndex={set.round!}
-                mb={5}
-                mr={5}
+                mb={`${offset || margin}px`}
+                mr={`${margin}px`}
                 display={"flex"}
                 position={"relative"}
-                _before={set.getSibling() ? verticalLinkStyle : {}}
+                border={`2px solid ${highlightColor}`}
+                borderRadius={borderRadius}
+                transform={"translateY(0)"}
+                transition={"all 0.2s"}
+                _hover={{
+                    transform: `translateY(${set.isLeftChild() ? "-5px" : "5px"})`,
+                    cursor: "pointer",
+                }}
+                _before={!isRoot ? verticalLinkStyle : {}}
                 _after={horizontalLinkStyle}>
                 <Box
                     fontWeight={"bold"}
                     w={`${matchNumberWidth}px`}
-                    backgroundColor={matchNumberBG}
-                    border={`2px solid ${baseColor}`}
-                    borderTopLeftRadius={`${borderRadius}px`}
-                    borderBottomLeftRadius={`${borderRadius}px`}>
+                    backgroundColor={highlightColor}>
                     <Box
                         h={"100%"}
                         w={"100%"}
@@ -80,70 +96,97 @@ const BracketViewer = (props: {
                         {set.setId}
                     </Box>
                 </Box>
-                <Box display={"flex"} flexDir={"column"}>
+                <Box
+                    display={"flex"}
+                    flexDir={"column"}
+                    backgroundColor={baseColor}
+                    borderRadius={borderRadius}
+                    zIndex={3}>
                     <Box
                         h={nameCardHeight}
-                        w={width}
+                        w={`${width}px`}
                         display={"flex"}
                         alignItems={"center"}
-                        color={"#000"}
                         backgroundColor={baseColor}
-                        borderTopRightRadius={`${borderRadius}px`}>
+                        borderTopRightRadius={borderRadius}>
                         {
                             set.leftEntrant &&
-                            <Box display={"flex"} w={"100%"} h={"100%"}>
+                            <Box
+                                display={"flex"}
+                                w={"100%"}
+                                h={"100%"}
+                                backgroundColor={nameCardBackgroundColor}>
                               <Text
-                                style={{textDecoration: set.entrant1Result === "lose" ? "line-through" : "none"}}
-                                flexGrow={1}
-                                whiteSpace={"nowrap"}
-                                pos={"relative"}>
-                                  {set.leftEntrant.entrantTag ? set.leftEntrant.entrantTag.slice(0, characterLimit) : `??? (Seed ${set.leftEntrant.initialSeed})`} {set.setId === bracket.winnersRoot!.setId && set.entrant1Result === "win" && `👑`}
+                                  style={{fontWeight: set.entrant1Result === "win" ? "bold" : "none"}}
+                                  flexGrow={1}
+                                  px={2}
+                                  color={nameCardTextColor}
+                                  overflowX={"hidden"}
+                                  whiteSpace={"nowrap"}
+                                  pos={"relative"}>
+                                  {set.leftEntrant.entrantTag ? set.leftEntrant.entrantTag : `??? (Seed ${set.leftEntrant.initialSeed})`}
                               </Text>
                               <Box
-                                ml={"auto"}
-                                backgroundColor={"#ff6200"}
-                                px={2}
-                                fontWeight={"bold"}
-                                border={`2px solid ${baseColor}`}
-                                borderBottom={`1px solid ${baseColor}`}
-                                borderTopRightRadius={`${borderRadius}px`}>
+                                  ml={"auto"}
+                                  backgroundColor={highlightColor}
+                                  px={2}
+                                  fontWeight={"bold"}>
                                   {set.entrant1Score}
                               </Box>
                             </Box>
                         }
-                        {!set.leftEntrant && set.leftWinnerSet && <Text whiteSpace={"nowrap"} pos={"relative"} zIndex={1}>Loser of {set.leftWinnerSet.setId}</Text>}
+                        {
+                            !set.leftEntrant &&
+                            set.leftWinnerSet &&
+                            <Text
+                                whiteSpace={"nowrap"}
+                                pos={"relative"}
+                                px={2}>
+                              Loser of {set.leftWinnerSet.setId}
+                            </Text>}
                     </Box>
                     <Box
                         h={nameCardHeight}
-                        w={width}
+                        w={`${width}px`}
                         display={"flex"}
                         alignItems={"center"}
-                        color={"#000"}
                         backgroundColor={baseColor}
-                        borderBottomRightRadius={`${borderRadius}px`}>
+                        borderBottomRightRadius={borderRadius}>
                         {
                             set.rightEntrant &&
-                            <Box display={"flex"} w={"100%"} h={"100%"}>
-                                <Text
-                                  style={{textDecoration: set.entrant2Result === "lose" ? "line-through" : "none"}}
+                            <Box
+                                display={"flex"}
+                                w={"100%"}
+                                h={"100%"}
+                                backgroundColor={nameCardBackgroundColor}>
+                              <Text
+                                  style={{fontWeight: set.entrant2Result === "win" ? "bold" : "none"}}
                                   flexGrow={1}
+                                  color={nameCardTextColor}
+                                  overflowX={"hidden"}
                                   whiteSpace={"nowrap"}
+                                  px={2}
                                   pos={"relative"}>
-                                    { set.rightEntrant.entrantTag ? set.rightEntrant.entrantTag.slice(0, characterLimit) : `??? (Seed ${set.rightEntrant.initialSeed})` } {set.setId === bracket.winnersRoot!.setId && set.entrant2Result === "win" && `👑`}
-                                </Text>
-                                <Box
+                                  { set.rightEntrant.entrantTag ? set.rightEntrant.entrantTag : `??? (Seed ${set.rightEntrant.initialSeed})` }
+                              </Text>
+                              <Box
                                   ml={"auto"}
                                   backgroundColor={"#ff6200"}
                                   px={2}
-                                  fontWeight={"bold"}
-                                  border={`2px solid ${baseColor}`}
-                                  borderTop={`1px solid ${baseColor}`}
-                                  borderBottomRightRadius={`${borderRadius}px`}>
-                                    {set.entrant2Score}
-                                </Box>
+                                  fontWeight={"bold"}>
+                                  {set.entrant2Score}
+                              </Box>
                             </Box>
                         }
-                        {!set.rightEntrant && set.rightWinnerSet && <Text whiteSpace={"nowrap"} pos={"relative"} zIndex={1}>Loser of {set.rightWinnerSet.setId}</Text>}
+                        {
+                            !set.rightEntrant &&
+                            set.rightWinnerSet &&
+                            <Text
+                                whiteSpace={"nowrap"}
+                                pos={"relative"}
+                                px={2}>
+                              Loser of {set.rightWinnerSet.setId}
+                            </Text>}
                     </Box>
                 </Box>
             </Box>
@@ -152,12 +195,30 @@ const BracketViewer = (props: {
 
     const RenderChildren = (set: BracketSet) => {
         const hasChildren = set.leftSet || set.rightSet
+        const hasBothChildren = set.leftSet && set.rightSet
+        const lineWidth = 2
+        const width = 215
+        const margin = 20
+        const verticalLinkStyle = {
+            content: '""',
+            position: 'absolute',
+            display: "inline-block",
+            height: `calc(50% - ${lineWidth}px + 1px)`,
+            right: `-${(width/2) - margin - 30}px`,
+            top: `calc(50% - ${margin/2}px)`,
+            transform: "translateY(-50%)",
+            width: `${lineWidth}px`,
+            backgroundColor: "#ff6200",
+        }
         const children = () => {
             return (
-                <ul>
+                <Box
+                    as={"ul"}
+                    pos={"relative"}
+                    _after={hasBothChildren && verticalLinkStyle}>
                     {set.leftSet && RenderChildren(set.leftSet)}
                     {set.rightSet && RenderChildren(set.rightSet)}
-                </ul>
+                </Box>
             )
         }
 
@@ -179,54 +240,74 @@ const BracketViewer = (props: {
     }
 
     return (
-        <>
+        <Container maxW={"full"}>
             {
                 bracket.layout.toLowerCase() !== "single elimination" &&
                 bracket.layout.toLowerCase() !== "double elimination" &&
                 <Center>
                   <Heading>
-                    <Text display={"inline-block"} color={"#ff6200"}>{bracket.layout.toUpperCase()}</Text> brackets not supported.
+                    <Text display={"inline-block"}>{bracket.layout.toUpperCase()}</Text> brackets not
+                    supported.
                   </Heading>
                 </Center>
             }
             {
-            bracket.layout.toLowerCase() === "single elimination" &&
-                  <>
-                    <Heading py={5}>SINGLE ELIMINATION</Heading>
-                    <Box as={"ul"} display={"flex"}>
-                        {RenderChildren(bracket.winnersRoot!)}
-                    </Box>
-                  </>
+                bracket.layout.toLowerCase() === "single elimination" &&
+                <>
+                  <Heading py={5}>SINGLE ELIMINATION</Heading>
+                  <Box as={"ul"} display={"flex"}>
+                      {RenderChildren(bracket.winnersRoot!)}
+                  </Box>
+                </>
             }
             {
                 bracket.layout.toLowerCase() === "double elimination" &&
                 <>
-                    <Heading py={5}>WINNERS</Heading>
-                    <Box as={"ul"} display={"flex"}>
-                      <Box
+                  <Container>
+                    <Center>
+                      <Heading py={5}>WINNERS</Heading>
+                    </Center>
+                  </Container>
+                  <Box as={"ul"} display={"flex"}>
+                    <Box
                         as={"li"}
                         position={"relative"}
                         display={"flex"}
                         flexDir={"row-reverse"}>
-                        <Box
+                        {
+                            bracket.winnersRoot?.parentSet &&
+                            bracket.winnersRoot?.parentSet.leftEntrant &&
+                            bracket.winnersRoot?.parentSet.rightEntrant &&
+                            <Box
+                                display={"flex"}
+                                flexDir={"column"}
+                                justifyContent={"center"}>
+                                {SetTemplate(bracket.winnersRoot!.parentSet)}
+                            </Box>
+                        }
+                      <Box
                           display={"flex"}
                           flexDir={"column"}
                           justifyContent={"center"}>
-                            {SetTemplate(bracket.winnersRoot!)}
-                        </Box>
-                        <Box as={"ul"} display={"flex"}>
-                            {RenderChildren(bracket.winnersRoot!.leftSet!)}
-                        </Box>
+                          {SetTemplate(bracket.winnersRoot!)}
+                      </Box>
+                      <Box as={"ul"} display={"flex"}>
+                          {RenderChildren(bracket.winnersRoot!.leftSet!)}
                       </Box>
                     </Box>
+                  </Box>
 
-                    <Heading py={5}>LOSERS</Heading>
-                    <Box as={"ul"} display={"flex"}>
-                        {RenderChildren(bracket.winnersRoot!.rightSet!)}
-                    </Box>
+                  <Container>
+                    <Center>
+                      <Heading py={5}>LOSERS</Heading>
+                    </Center>
+                  </Container>
+                  <Box as={"ul"} display={"flex"}>
+                      {RenderChildren(bracket.winnersRoot!.rightSet!)}
+                  </Box>
                 </>
             }
-        </>
+        </Container>
     )
 }
 
