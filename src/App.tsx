@@ -20,6 +20,7 @@ function App() {
         setIsLoading(true)
         const OBFrequest = await fetch(`${import.meta.env.VITE_OBF_EXPORTER_ENDPOINT}`, {
             method: "POST",
+            mode: "cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({bracket: data.url})
         })
