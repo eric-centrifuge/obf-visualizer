@@ -1,6 +1,6 @@
 import {useForm} from 'react-hook-form';
 import './App.css'
-import {Box, Button, Field, Text, Input, Stack, Center, ProgressCircle} from "@chakra-ui/react";
+import {Box, Button, Field, Text, Input, Stack, Center, ProgressCircle, Container} from "@chakra-ui/react";
 import BracketViewer from "@/components/layout/BracketViewer.tsx";
 import {useState} from "react";
 import {Sample} from "@/types/obf";
@@ -41,7 +41,7 @@ function App() {
     }
 
     return (
-    <>
+    <Container maxW={"full"} overflowX={"scroll"}>
         <Text as={"h1"} mb={5}>Open Bracket Visualizer</Text>
         <Box mb={5}>
             <form onSubmit={onSubmit}>
@@ -64,7 +64,7 @@ function App() {
         { isLoading && <Center>{LoadingIcon()}</Center> }
         { !isLoading && tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{(tournamentData as Sample).event.name}</Text></Center> }
         { !isLoading && tournamentData && <BracketViewer tournament={tournamentData}/> }
-    </>
+    </Container>
     )
 }
 
