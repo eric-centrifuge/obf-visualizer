@@ -33,7 +33,7 @@ const BracketStages = (props: {
                         justifyContent={"center"}
                         w={"250px"}
                         h='10'
-                        bg='#ff6200'
+                        bg='rgba(0,0,0,.95)'
                         borderRadius={7}>
                         <Box as={"span"} fontWeight={"bold"}>
                             {label()}

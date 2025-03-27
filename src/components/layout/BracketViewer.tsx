@@ -241,7 +241,14 @@ const BracketViewer = (props: {
     }
 
     return (
-        <Container maxW={"full"}>
+        <Container
+            maxW={"full"}
+            pos={"relative"}
+            overflow={"scroll"}
+            w={"100%"}
+            h={"600px"}
+            border={"5px solid"}
+        >
             {
                 bracket.layout.toLowerCase() !== "single elimination" &&
                 bracket.layout.toLowerCase() !== "double elimination" &&
@@ -261,7 +268,7 @@ const BracketViewer = (props: {
                     </Center>
                   </Container>
 
-                  <Container maxW={"full"} px={0} mb={5}>
+                  <Container maxW={"full"} px={0} mb={5} pos={"sticky"} top={`20px`} zIndex={10}>
                     <BracketStages bracketRoot={bracket.root!}/>
                   </Container>
 
@@ -279,7 +286,7 @@ const BracketViewer = (props: {
                     </Center>
                   </Container>
 
-                  <Container maxW={"full"} px={0} mb={5}>
+                  <Container maxW={"full"} px={0} mb={5} pos={"sticky"} top={`20px`} zIndex={20}>
                     <BracketStages bracketRoot={bracket.winnersRoot!}/>
                   </Container>
 
@@ -316,7 +323,7 @@ const BracketViewer = (props: {
                     </Center>
                   </Container>
 
-                  <Container maxW={"full"} px={0} mb={5}>
+                  <Container maxW={"full"} px={0} mb={5} pos={"sticky"} top={`20px`} zIndex={20}>
                     <BracketStages bracketRoot={bracket.losersRoot!}/>
                   </Container>
 
