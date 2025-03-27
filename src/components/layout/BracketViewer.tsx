@@ -3,6 +3,7 @@ import BracketEvent from "../../utilities/classes/obf/BracketEvent"
 import BracketEntrant from "../../utilities/classes/obf/BracketEntrant"
 import {Sample} from "@/types/obf"
 import BracketSet from "@/utilities/classes/obf/BracketSet.ts";
+import BracketStages from "@/components/layout/BracketStages.tsx";
 
 const BracketViewer = (props: {
     onMatchClick?: (set: BracketSet) => void
@@ -265,9 +266,14 @@ const BracketViewer = (props: {
                 <>
                   <Container>
                     <Center>
-                      <Heading py={5}>WINNERS</Heading>
+                      <Heading py={5}>HEAVEN</Heading>
                     </Center>
                   </Container>
+
+                  <Container maxW={"full"} px={0} mb={5}>
+                    <BracketStages bracketRoot={bracket.winnersRoot!}/>
+                  </Container>
+
                   <Box as={"ul"} display={"flex"}>
                     <Box
                         as={"li"}
@@ -275,14 +281,12 @@ const BracketViewer = (props: {
                         display={"flex"}
                         flexDir={"row-reverse"}>
                         {
-                            bracket.winnersRoot?.parentSet &&
-                            bracket.winnersRoot?.parentSet.leftEntrant &&
-                            bracket.winnersRoot?.parentSet.rightEntrant &&
+                            bracket.reset &&
                             <Box
                                 display={"flex"}
                                 flexDir={"column"}
                                 justifyContent={"center"}>
-                                {SetTemplate(bracket.winnersRoot!.parentSet)}
+                                {SetTemplate(bracket.winnersRoot!.parentSet!)}
                             </Box>
                         }
                       <Box
@@ -299,9 +303,14 @@ const BracketViewer = (props: {
 
                   <Container>
                     <Center>
-                      <Heading py={5}>LOSERS</Heading>
+                      <Heading py={5}>HELL</Heading>
                     </Center>
                   </Container>
+
+                  <Container maxW={"full"} px={0} mb={5}>
+                    <BracketStages bracketRoot={bracket.losersRoot!}/>
+                  </Container>
+
                   <Box as={"ul"} display={"flex"}>
                       {RenderChildren(bracket.winnersRoot!.rightSet!)}
                   </Box>

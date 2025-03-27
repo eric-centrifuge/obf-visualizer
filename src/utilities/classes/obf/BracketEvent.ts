@@ -1,6 +1,6 @@
 import BracketSet from "./BracketSet";
 import BracketEntrant from "./BracketEntrant";
-import {ISet} from "../../../types/obf";
+import {ISet} from "@/types/obf";
 
 interface BracketMetaData {
     date?: string
@@ -11,6 +11,7 @@ class BracketEvent {
     name?: string
     numberOfEntrants = 3
     root: BracketSet
+    reset: boolean = false
     winnersRoot?: BracketSet
     losersRoot?: BracketSet
     entrants?: Array<BracketEntrant>
@@ -61,6 +62,14 @@ class BracketEvent {
                 }
 
                 if (this.root.status === "pending") {
+                    if (this.layout === "double elimination") {
+                        if (this.winnersRoot?.status === "completed") {
+                            const winnerOfLosersFinals = this.losersRoot?.entrant1Result === "win" ? this.losersRoot.leftEntrant?.entrantID : this.losersRoot!.rightEntrant?.entrantID
+                            const winnerOfGrandFinals = this.winnersRoot.entrant1Result === "win" ? this.winnersRoot.leftEntrant?.entrantID : this.winnersRoot.rightEntrant?.entrantID
+                            if (winnerOfGrandFinals === winnerOfLosersFinals) this.reset = true
+                        }
+                    }
+
                     if (this.root.leftEntrant && this.root.rightEntrant) {
                         const finals = sets.slice(-1)[0]
                         this.root.uuid = finals.setID
