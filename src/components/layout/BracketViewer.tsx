@@ -262,13 +262,7 @@ const BracketViewer = (props: {
             {
                 bracket.layout.toLowerCase() === "single elimination" &&
                 <>
-                  <Container>
-                    <Center>
-                      <Heading py={5}>SINGLE ELIMINATION</Heading>
-                    </Center>
-                  </Container>
-
-                  <Container maxW={"full"} px={0} mb={5} pos={"sticky"} top={`20px`} zIndex={10}>
+                  <Container maxW={"full"} px={0} mb={10} pos={"sticky"} top={`20px`} zIndex={10}>
                     <BracketStages bracketRoot={bracket.root!}/>
                   </Container>
 
@@ -280,13 +274,7 @@ const BracketViewer = (props: {
             {
                 bracket.layout.toLowerCase() === "double elimination" &&
                 <>
-                  <Container>
-                    <Center>
-                      <Heading py={5}>HEAVEN</Heading>
-                    </Center>
-                  </Container>
-
-                  <Container maxW={"full"} px={0} mb={5} pos={"sticky"} top={`20px`} zIndex={20}>
+                  <Container maxW={"full"} px={0} mb={10} pos={"sticky"} top={`20px`} zIndex={20}>
                     <BracketStages bracketRoot={bracket.winnersRoot!}/>
                   </Container>
 
@@ -316,12 +304,6 @@ const BracketViewer = (props: {
                       </Box>
                     </Box>
                   </Box>
-
-                  <Container>
-                    <Center>
-                      <Heading py={5}>HELL</Heading>
-                    </Center>
-                  </Container>
 
                   <Container maxW={"full"} px={0} mb={5} pos={"sticky"} top={`20px`} zIndex={20}>
                     <BracketStages bracketRoot={bracket.losersRoot!}/>
