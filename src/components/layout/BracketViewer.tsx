@@ -130,9 +130,9 @@ const BracketViewer = (props: {
                               <Box
                                   ml={"auto"}
                                   backgroundColor={highlightColor}
-                                  px={2}
+                                  w={`${matchNumberWidth}px`}
                                   fontWeight={"bold"}>
-                                  {set.entrant1Score}
+                                  <Center>{set.entrant1Score}</Center>
                               </Box>
                             </Box>
                         }
@@ -173,9 +173,9 @@ const BracketViewer = (props: {
                               <Box
                                   ml={"auto"}
                                   backgroundColor={"#ff6200"}
-                                  px={2}
+                                  w={`${matchNumberWidth}px`}
                                   fontWeight={"bold"}>
-                                  {set.entrant2Score}
+                                  <Center>{set.entrant2Score}</Center>
                               </Box>
                             </Box>
                         }
@@ -255,9 +255,18 @@ const BracketViewer = (props: {
             {
                 bracket.layout.toLowerCase() === "single elimination" &&
                 <>
-                  <Heading py={5}>SINGLE ELIMINATION</Heading>
+                  <Container>
+                    <Center>
+                      <Heading py={5}>SINGLE ELIMINATION</Heading>
+                    </Center>
+                  </Container>
+
+                  <Container maxW={"full"} px={0} mb={5}>
+                    <BracketStages bracketRoot={bracket.root!}/>
+                  </Container>
+
                   <Box as={"ul"} display={"flex"}>
-                      {RenderChildren(bracket.winnersRoot!)}
+                      {RenderChildren(bracket.root!)}
                   </Box>
                 </>
             }

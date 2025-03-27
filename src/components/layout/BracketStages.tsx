@@ -6,7 +6,7 @@ const BracketStages = (props: {
 }) => {
     const { bracketRoot } = props
     const numberOfWinnersRounds = bracketRoot.round
-    const type = bracketRoot.type === "winners" ? "Winners" : "Losers"
+    const type = bracketRoot.type && bracketRoot.type === "winners" ? "Winners" : "Losers"
 
     const generateRoundLabels = () => {
         const roundLabelArray = new Array(numberOfWinnersRounds).fill(<></>)
@@ -15,13 +15,13 @@ const BracketStages = (props: {
                 const label = () => {
                     switch (index + 1) {
                         case numberOfWinnersRounds:
-                            return `${type} Finals`
+                            return `${bracketRoot.parentSet ? `${type} ` : ""}Finals`
                         case numberOfWinnersRounds - 1:
-                            return `${type} Semi Finals`
+                            return `${bracketRoot.parentSet ? `${type} ` : ""}Semi Finals`
                         case numberOfWinnersRounds - 2:
-                            return `${type} Quarter Finals`
+                            return `${bracketRoot.parentSet ? `${type} ` : ""}Quarter Finals`
                         default:
-                            return `${type} Round ${index + 1}`
+                            return `${bracketRoot.parentSet ? `${type} ` : ""}Round ${index + 1}`
                     }
                 }
 
