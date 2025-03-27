@@ -63,7 +63,7 @@ function App() {
         </Box>
         { isLoading && <Center>{LoadingIcon()}</Center> }
         { !isLoading && tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{(tournamentData as Sample).event.name}</Text></Center> }
-        { !isLoading && tournamentData && <BracketViewer flexGrow={1} tournament={tournamentData}/> }
+        { !isLoading && tournamentData && <BracketViewer tournament={tournamentData}/> }
     </Container>
     )
 }

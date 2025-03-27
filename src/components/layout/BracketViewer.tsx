@@ -247,7 +247,7 @@ const BracketViewer = (props: {
             overflow={"scroll"}
             w={"100%"}
             border={"5px solid"}
-        >
+            flexGrow={1}>
             {
                 bracket.layout.toLowerCase() !== "single elimination" &&
                 bracket.layout.toLowerCase() !== "double elimination" &&
