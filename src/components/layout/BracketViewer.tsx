@@ -246,7 +246,6 @@ const BracketViewer = (props: {
             pos={"relative"}
             overflow={"scroll"}
             w={"100%"}
-            h={"600px"}
             border={"5px solid"}
         >
             {

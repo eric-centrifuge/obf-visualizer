@@ -41,7 +41,7 @@ function App() {
     }
 
     return (
-    <Container maxW={"full"} overflowX={"scroll"}>
+    <Container maxW={"full"} h={"100vh"} display={"flex"} flexDir={"column"} overflowX={"scroll"}>
         <Text as={"h1"} mb={5}>Open Bracket Visualizer</Text>
         <Box mb={5}>
             <form onSubmit={onSubmit}>
@@ -63,7 +63,7 @@ function App() {
         </Box>
         { isLoading && <Center>{LoadingIcon()}</Center> }
         { !isLoading && tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{(tournamentData as Sample).event.name}</Text></Center> }
-        { !isLoading && tournamentData && <BracketViewer tournament={tournamentData}/> }
+        { !isLoading && tournamentData && <BracketViewer flexGrow={1} tournament={tournamentData}/> }
     </Container>
     )
 }
