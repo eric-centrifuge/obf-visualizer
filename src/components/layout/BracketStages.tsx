@@ -7,6 +7,7 @@ const BracketStages = (props: {
     const { bracketRoot } = props
     const numberOfWinnersRounds = bracketRoot.round
     const type = bracketRoot.type && bracketRoot.type === "winners" ? "Winners" : "Losers"
+    const baseColor = "rgb(0 0 0 / 100%)"
 
     const generateRoundLabels = () => {
         const roundLabelArray = new Array(numberOfWinnersRounds).fill(<></>)
@@ -33,7 +34,7 @@ const BracketStages = (props: {
                         justifyContent={"center"}
                         w={"250px"}
                         h='10'
-                        bg='rgba(0,0,0,.95)'
+                        bg={`${baseColor}`}
                         borderRadius={7}>
                         <Box as={"span"} fontWeight={"bold"}>
                             {label()}

@@ -120,6 +120,7 @@ const BracketViewer = (props: {
                               <Text
                                   style={{fontWeight: set.entrant1Result === "win" ? "bold" : "none"}}
                                   flexGrow={1}
+                                  maxW={"185px"}
                                   px={2}
                                   color={nameCardTextColor}
                                   overflowX={"hidden"}
@@ -163,6 +164,7 @@ const BracketViewer = (props: {
                               <Text
                                   style={{fontWeight: set.entrant2Result === "win" ? "bold" : "none"}}
                                   flexGrow={1}
+                                  maxW={"185px"}
                                   color={nameCardTextColor}
                                   overflowX={"hidden"}
                                   whiteSpace={"nowrap"}
