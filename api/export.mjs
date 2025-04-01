@@ -1,5 +1,5 @@
-const startgg = require('../server_modules/startgg')
-const challonge = require('../server_modules/challonge')
+import '../server_modules/startgg'
+import '../server_modules/challonge'
 
 export async function POST (request) {
   if (request.body.bracket.search('start.gg') !== -1){
