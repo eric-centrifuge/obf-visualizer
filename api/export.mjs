@@ -2,10 +2,11 @@ import {startGGBracket} from "./server_modules/startgg.js"
 import {getTournamentInfo} from "./server_modules/challonge.js"
 
 export async function POST (request) {
-  if (request.body.bracket.search('start.gg') !== -1){
+  console.log(request)
+  if (request.body.bracket.includes('start.gg')) {
     const obf = await startGGBracket(request.body.bracket.trim())
     return Response.json(obf)
-  } else if (request.body.bracket.search('challonge.com') !== -1) {
+  } else if (request.body.bracket.includes('challonge.com')) {
     const obf = await getTournamentInfo(request.body.bracket.trim())
     return Response.json(obf)
   } else {
