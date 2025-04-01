@@ -1,4 +1,4 @@
-import {makeBasicOBF, makeOBFEvent} from "./schema.js";
+import {makeBasicOBF, makeOBFEvent, makeOBFSet, makeOBFEntrant} from "./schema.js";
 
 async function getData(url = "") {
   let response
@@ -50,7 +50,7 @@ export const getTournamentInfo = async (event) => {
   
   const participants = eventData.tournament.participants
   
-  obf.entrants = participants.map( p => schema.makeOBFEntrant(p.participant.id, p.participant.name, p.participant.seed, p.participant.final_rank))
+  obf.entrants = participants.map( p => makeOBFEntrant(p.participant.id, p.participant.name, p.participant.seed, p.participant.final_rank))
   obf.entrants = obf.entrants.filter((e) => e.finalPlacement ? true : false)
   
   const sets = eventData.tournament.matches
@@ -105,7 +105,7 @@ export const getTournamentInfo = async (event) => {
   }
   
   obf.sets = sets.map((s) => {
-    let base = schema.makeOBFSet(s.match.id, s.match.player1_id, s.match.player2_id, statusCheck(s.match.state), checkWinner(s.match.winner_id, s.match.player1_id),
+    let base = makeOBFSet(s.match.id, s.match.player1_id, s.match.player2_id, statusCheck(s.match.state), checkWinner(s.match.winner_id, s.match.player1_id),
         checkWinner(s.match.winner_id, s.match.player2_id), scores(s.match.scores_csv, 0), scores(s.match.scores_csv, 1, s.match), "", "", [])
     if (s.match.player1_prereq_match_id) {
       base.entrant1PrevSetID = s.match.player1_prereq_match_id
