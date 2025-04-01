@@ -18,7 +18,7 @@ function App() {
 
     const onSubmit = handleSubmit(async (data) => {
         setIsLoading(true)
-        const OBFrequest = await fetch(`${import.meta.env.VITE_OBF_EXPORTER_ENDPOINT}`, {
+        const OBFrequest = await fetch(`/api/export`, {
             method: "POST",
             mode: "cors",
             headers: { "Content-Type": "application/json" },
