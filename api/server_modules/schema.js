@@ -1,4 +1,4 @@
-const makeBasicOBF = () => {
+export const makeBasicOBF = () => {
   return {
     "version" : "v1.0",
     "event" : {
@@ -15,7 +15,7 @@ const makeBasicOBF = () => {
   }
 }
 
-const makeOBFEvent = (name = "", date = "", game = "", numEntrant = 0, origin = "", tournamentStructure) => {
+export const makeOBFEvent = (name = "", date = "", game = "", numEntrant = 0, origin = "", tournamentStructure) => {
   return {
     name,
     date,
@@ -26,7 +26,7 @@ const makeOBFEvent = (name = "", date = "", game = "", numEntrant = 0, origin = 
   }
 }
 
-const makeOBFEntrant = (id = "", name = "", seed = -1, standing = -1, personalInfo = []) => {
+export const makeOBFEntrant = (id = "", name = "", seed = -1, standing = -1, personalInfo = []) => {
   return {
     "entrantID" : String(id),
     "entrantTag" : name,
@@ -36,7 +36,7 @@ const makeOBFEntrant = (id = "", name = "", seed = -1, standing = -1, personalIn
   }
 }
 
-const makeOBFSet = (id, e1id, e2id, status, e1result, e2result, e1score, e2score, format, phase, games = []) => {
+export const makeOBFSet = (id, e1id, e2id, status, e1result, e2result, e1score, e2score, format, phase, games = []) => {
   return {
     "setID" : String(id),
     "entrant1ID" : String(e1id),
@@ -50,11 +50,4 @@ const makeOBFSet = (id, e1id, e2id, status, e1result, e2result, e1score, e2score
     "phaseID" : phase,
     "games" : games
   }
-}
-
-module.exports = {
-  makeBasicOBF,
-  makeOBFEntrant,
-  makeOBFSet,
-  makeOBFEvent
 }
