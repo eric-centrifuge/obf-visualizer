@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import {makeBasicOBF} from "./schema";
 
 async function getData(url = "") {
