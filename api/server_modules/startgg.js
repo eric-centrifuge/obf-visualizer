@@ -1,4 +1,4 @@
-const schema = require('./schema');
+const schema = require('./schema.js');
 const fetch = require('node-fetch');
 
 const characters = [
