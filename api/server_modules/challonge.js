@@ -1,4 +1,4 @@
-import {makeBasicOBF} from "./schema";
+import {makeBasicOBF} from "./schema.js";
 
 async function getData(url = "") {
   let response
