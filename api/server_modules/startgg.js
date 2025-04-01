@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import schema from "./schema.js";
+import {makeBasicOBF} from "./schema";
 
 async function postData(url = "", apiKey = "", data = {}) {
   // Default options are marked with *
@@ -218,8 +218,6 @@ const getSets = async (event, pages) => {
       const data = await postData(process.env.STARTGG_API, process.env.STARTGG_KEY, {
         query, operationName, variables
       });
-
-      //console.log(data);
   
       if (data.data.event && data.data.event.sets)
         sets = sets.concat(data.data.event.sets.nodes);
@@ -236,7 +234,7 @@ const getSets = async (event, pages) => {
 }
 
 export const startGGBracket = async (bracket) => {
-  let obf = schema.makeBasicOBF();
+  let obf = makeBasicOBF();
 
   if (!bracket.match(/tournament\/[a-zA-Z0-9_\-]+\/event\/[a-zA-Z0-9_\-]+/))
     return obf;

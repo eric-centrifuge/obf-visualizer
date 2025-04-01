@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import schema from "./schema.js";
+import {makeBasicOBF} from "./schema";
 
 async function getData(url = "") {
   let response
@@ -24,7 +24,7 @@ async function getData(url = "") {
 }
 
 export const getTournamentInfo = async (event) => {
-  let obf = schema.makeBasicOBF()
+  let obf = makeBasicOBF()
   
   const eventName = event.match(/([^\/]*)\/*$/)[1]
   const subDomain = event.match(/(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/i)
