@@ -619,7 +619,7 @@ const getSets = async (event, pages) => {
   return sets;
 }
 
-const startGGBracket = async (bracket) => {
+export const startGGBracket = async (bracket) => {
   let obf = schema.makeBasicOBF();
 
   if (!bracket.match(/tournament\/[a-zA-Z0-9_\-]+\/event\/[a-zA-Z0-9_\-]+/))

@@ -23,7 +23,7 @@ async function getData(url = "") {
   }
 }
 
-const getTournamentInfo = async (event) => {
+export const getTournamentInfo = async (event) => {
   let obf = schema.makeBasicOBF()
   
   const eventName = event.match(/([^\/]*)\/*$/)[1]
@@ -158,8 +158,4 @@ const getTournamentInfo = async (event) => {
     return obf
   
   return obf
-}
-
-module.exports = {
-  getTournamentInfo
 }
