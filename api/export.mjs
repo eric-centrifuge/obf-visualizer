@@ -1,5 +1,5 @@
-import {startGGBracket} from "./server_modules/startgg.js"
-import {getTournamentInfo} from "./server_modules/challonge.js"
+import {startGGBracket} from "./server_modules/_startgg.js"
+import {getTournamentInfo} from "./server_modules/_challonge.js"
 
 export async function POST (request) {
   const body = await request.json()

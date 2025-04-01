@@ -1,4 +1,4 @@
-import {makeBasicOBF} from "./schema.js";
+import {makeBasicOBF} from "./_schema.js";
 
 async function postData(url = "", apiKey = "", data = {}) {
   // Default options are marked with *
