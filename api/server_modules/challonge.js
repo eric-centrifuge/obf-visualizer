@@ -46,7 +46,7 @@ export const getTournamentInfo = async (event) => {
   const addZero = (num) => num < 10 ? "0"+String(num) : String(num)
   const d = new Date(tournament.started_at)
   const ISO = `${d.getFullYear()}-${addZero(d.getMonth()+1)}-${addZero(d.getDate())}`
-  obf.event = schema.makeOBFEvent(tournament.name, ISO, tournament.game_name, tournament.participants_count, tournament.full_challonge_url, tournament.tournament_type)
+  obf.event = makeOBFEvent(tournament.name, ISO, tournament.game_name, tournament.participants_count, tournament.full_challonge_url, tournament.tournament_type)
   
   const participants = eventData.tournament.participants
   
