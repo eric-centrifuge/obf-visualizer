@@ -1,5 +1,5 @@
-const schema = require('./schema.js')
-const fetch = require('node-fetch')
+import fetch from "node-fetch";
+import schema from "./schema.js";
 
 async function getData(url = "") {
   let response

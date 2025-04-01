@@ -1,5 +1,5 @@
-const schema = require('./schema.js');
-const fetch = require('node-fetch');
+import fetch from "node-fetch";
+import schema from "./schema.js";
 
 const characters = [
   { "id": 0, "value": "none", "label": "none" },
