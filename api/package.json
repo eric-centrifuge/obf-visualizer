@@ -1,0 +1,16 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eric-centrifuge/obf-visualizer.git"
+  },
+  "private": true,
+  "dependencies": {
+
+  }
+}
