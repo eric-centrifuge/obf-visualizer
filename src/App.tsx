@@ -1,33 +1,37 @@
-import {useForm} from 'react-hook-form';
 import './App.css'
-import {Box, Button, Field, Text, Input, Stack, Center, ProgressCircle, Container} from "@chakra-ui/react";
-import BracketViewer from "@/components/layout/BracketViewer.tsx";
-import {useState} from "react";
-import {Sample} from "@/types/obf";
-
-interface FormValues { url: string }
+import {
+    Button,
+    Center,
+    Container,
+    Field,
+    Heading,
+    Input,
+    ProgressCircle,
+    SegmentGroup,
+    Text,
+    VStack
+} from "@chakra-ui/react"
+import {useRef, useState} from "react"
+import {Sample} from "@/types/obf"
+import {toaster} from "./components/ui/toaster"
+import BracketViewer from "./components/layout/BracketViewer"
 
 function App() {
     const [tournamentData, setTournamentData] = useState(undefined)
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<FormValues>()
-    const [isLoading, setIsLoading] = useState(false)
+    const formRef = useRef<HTMLFormElement>(null)
+    const [value, setValue] = useState<string | null>("start.gg")
+    const [loading, setLoading] = useState(false)
 
-    const onSubmit = handleSubmit(async (data) => {
-        setIsLoading(true)
-        const OBFrequest = await fetch(`/api/export`, {
+    const onSubmit = (data: FormData) => {
+        return fetch(`/api/export`, {
             method: "POST",
-            mode: "cors",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({bracket: data.url})
+            body: JSON.stringify({
+                api: data.get("api"),
+                url: data.get("url")
+            })
         })
-        if (OBFrequest.ok) setTournamentData(await OBFrequest.json())
-        else console.error("Failed to fetch tournament from exporter.")
-        setIsLoading(false)
-    })
+    }
 
     const LoadingIcon = () => {
         return (
@@ -40,30 +44,94 @@ function App() {
         )
     }
 
+    const apiPrefix = (api: string) => {
+        switch (api) {
+            case "mtch.gg":
+                return "https://mtch.gg/api/v1"
+            case "start.gg":
+                return "https://api.start.gg/gql/alpha"
+            case "challonge":
+                return "https://api.challonge.com/v1"
+            default:
+                return "https://mtch.gg/api/v1"
+        }
+    }
+
     return (
-    <Container maxW={"full"} h={"100vh"} display={"flex"} flexDir={"column"} overflowX={"scroll"}>
-        <Text as={"h1"} mb={5}>Open Bracket Visualizer</Text>
-        <Box mb={5}>
-            <form onSubmit={onSubmit}>
-                <Stack gap="4" align="flex-start" maxW="sm">
-                    <Field.Root invalid={!!errors.url}>
-                        <Field.Label>Bracket URL</Field.Label>
-                        <Input
-                            style={{
-                                backgroundColor: "#FFF",
-                                color: "#000"
-                            }}
-                            {...register("url")}
-                            placeholder="Event Link: e.g. https://www.start.gg/tournament/collision-2023-5/event/melee-singles"/>
-                        <Field.ErrorText>{errors.url?.message}</Field.ErrorText>
-                    </Field.Root>
-                    <Button type="submit">Submit</Button>
-                </Stack>
-            </form>
-        </Box>
-        { isLoading && <Center>{LoadingIcon()}</Center> }
-        { !isLoading && tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{(tournamentData as Sample).event.name}</Text></Center> }
-        { !isLoading && tournamentData && <BracketViewer tournament={tournamentData}/> }
+    <Container maxW={"full"} h={"100vh"} overflowX={"visible"}>
+        {
+            !tournamentData && (
+                <VStack h={"100%"} justifyContent={"center"} w={"container.xl"} gap={5}>
+                    <Center>
+                        <Heading size={"3xl"}>Open Bracket Visualizer</Heading>
+                    </Center>
+
+                    <form ref={formRef} onSubmit={(e) => {
+                        e.preventDefault()
+                        setLoading(true)
+                        onSubmit(new FormData(formRef.current as unknown as HTMLFormElement))
+                            .then(async (res) => {
+                                if (res.ok) {
+                                    const data = await res.json()
+                                    setTournamentData(data)
+                                    console.log(data)
+                                } else {
+                                    setTournamentData(undefined)
+                                    toaster.error({
+                                        title: "Error",
+                                        description: (await res.json() as any).error,
+                                        duration: 5000,
+                                        placement: "bottom-end"
+                                    })
+                                }
+                            })
+                            .finally(() => setLoading(false))
+                    }}>
+                        <VStack gap={5}>
+                            <Field.Root>
+                                <Field.Label>Source API</Field.Label>
+                                <SegmentGroup.Root
+                                    name={"api"}
+                                    defaultValue={"mtch.gg"}
+                                    value={value}
+                                    onValueChange={(e) => setValue(e.value)}>
+                                    <SegmentGroup.Indicator />
+                                    <SegmentGroup.Items
+                                        items={[
+                                            {
+                                                value: "mtch.gg",
+                                                label: <>mtch.gg</>
+                                            },
+                                            {
+                                                value: "start.gg",
+                                                label: <>start.gg</>
+                                            },
+                                            {
+                                                value: "challonge",
+                                                label: <>challonge</>
+                                            }
+                                        ]}
+                                    />
+                                </SegmentGroup.Root>
+                            </Field.Root>
+
+                            <Field.Root>
+                                <Field.Label>Event URL Slug</Field.Label>
+                                <Input
+                                    variant={"subtle"}
+                                    name={"url"}
+                                    placeholder="Enter Event URL Slug"
+                                />
+                            </Field.Root>
+
+                            <Button loading={loading} type="submit">Render Bracket</Button>
+                        </VStack>
+                    </form>
+                </VStack>
+            )
+        }
+        { tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{(tournamentData as Sample).event.name}</Text></Center> }
+        { tournamentData && <BracketViewer tournament={tournamentData}/> }
     </Container>
     )
 }

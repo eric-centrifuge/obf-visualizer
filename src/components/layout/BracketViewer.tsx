@@ -1,9 +1,9 @@
 import {Box, Center, Container, Heading, Text} from "@chakra-ui/react"
 import BracketEvent from "../../utilities/classes/obf/BracketEvent"
 import BracketEntrant from "../../utilities/classes/obf/BracketEntrant"
-import {Sample} from "@/types/obf"
-import BracketSet from "@/utilities/classes/obf/BracketSet.ts";
-import BracketStages from "@/components/layout/BracketStages.tsx";
+import BracketSet from "../../utilities/classes/obf/BracketSet"
+import BracketStages from "./BracketStages.tsx";
+import {Sample} from "../../types/obf.ts";
 
 const BracketViewer = (props: {
     onMatchClick?: (set: BracketSet) => void
