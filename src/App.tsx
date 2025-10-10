@@ -1,6 +1,6 @@
 // @ts-expect-error ts(2307)
 import './App.css'
-import {Button, Center, Container, Field, Heading, Input, SegmentGroup, Text, VStack} from "@chakra-ui/react"
+import {Button, Center, Container, Field, Heading, Input, SegmentGroup, VStack} from "@chakra-ui/react"
 import {useRef, useState} from "react"
 import {toaster} from "./components/ui/toaster"
 import BracketViewer from "./components/layout/BracketViewer"
@@ -25,7 +25,7 @@ function App() {
     }
 
     return (
-    <Container maxW={"full"} h={"100vh"} overflowX={"visible"}>
+    <Container maxW={"full"} overflowX={"visible"}>
         {
             !tournamentData && (
                 <VStack h={"100%"} justifyContent={"center"} w={"container.xl"} gap={5}>
@@ -87,6 +87,7 @@ function App() {
                                     variant={"subtle"}
                                     name={"url"}
                                     placeholder="Enter Event URL Slug"
+                                    required
                                 />
                             </Field.Root>
 
@@ -96,7 +97,16 @@ function App() {
                 </VStack>
             )
         }
-        { tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{tournamentData.event.name}</Text></Center> }
+        {
+            tournamentData && (
+                <VStack>
+                    <Heading fontSize={"1.5rem"} mb={5}>
+                        { tournamentData.event.name }
+                    </Heading>
+                    <Button onClick={() => setTournamentData(undefined)}>Reset</Button>
+                </VStack>
+            )
+        }
         { tournamentData && (
             <>
                 <EventContext value={tournamentData.event}>

@@ -1,11 +1,10 @@
-import {makeBasicOBF} from "./schema.ts"
 import {IEntrant, IEvent, ISet} from "../../src/types/obf.ts";
 
 export const startggRequest = async ({
  data
 }: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: {[key: string]: any}
+    data: any
 }) => {
     const response = await fetch(`${process.env.STARTGG_API}`, {
         method: "POST",
@@ -29,6 +28,7 @@ export const getStartggEvent = async (slug: string) => {
           slug
           tournament {
             name
+            tournamentType
           }
           videogame {
             displayName
@@ -63,17 +63,29 @@ export const getStartggEvent = async (slug: string) => {
         }
     }) as any
 
+    const tournamentType = (type: number) => {
+      switch (type) {
+          case 1:
+              return "double elimination"
+          case 2:
+              return "single elimination"
+          default:
+              return "unknown"
+      }
+    }
+
     if (data) {
         const { event } = data
         return ({
             name: event.tournament.name,
             numberEntrants: event.numEntrants,
-            tournamentStructure: "single elimination",
+            tournamentStructure: tournamentType(event.tournament.tournamentType),
             date: event.startAt,
             originURL: event.slug,
             game: event.videogame.displayName,
             phases: event.phases.map((phase) => phase),
             other: {
+                startTime: event.startAt,
                 eventID: event.id,
             }
         } as unknown as IEvent)
@@ -127,8 +139,6 @@ export const getStartggEntrants = async (slug: string) => {
             }
         }
     }) as any
-
-    console.log(data)
 
     if (data) {
         data.event.entrants.nodes.forEach((entrant) => {
@@ -240,12 +250,3 @@ export const getStartggSets = async (slug: string) => {
 
     return sets
 }
-
-const startGGBracket = async (slug: string) => {
-    const obf = makeBasicOBF()
-    const info = await getStartggEvent(slug)
-    return obf
-}
-
-
-export default startGGBracket
