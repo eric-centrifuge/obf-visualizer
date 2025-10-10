@@ -68,6 +68,7 @@ export const getStartggEvent = async (slug: string) => {
         return ({
             name: event.tournament.name,
             numberEntrants: event.numEntrants,
+            tournamentStructure: "single elimination",
             date: event.startAt,
             originURL: event.slug,
             game: event.videogame.displayName,
@@ -127,6 +128,8 @@ export const getStartggEntrants = async (slug: string) => {
         }
     }) as any
 
+    console.log(data)
+
     if (data) {
         data.event.entrants.nodes.forEach((entrant) => {
             entrants.push({
@@ -143,7 +146,10 @@ export const getStartggEntrants = async (slug: string) => {
                         tag: entrant.participants[0].gamerTag,
                         prefix: entrant.participants[0].prefix,
                     }
-                ]
+                ],
+                other: {
+                    // image: entrant.participants[0].images[0],
+                }
             })
         })
     }
@@ -215,7 +221,6 @@ export const getStartggSets = async (slug: string) => {
 
     if (data) {
         data.event.sets.nodes.forEach((set) => {
-            console.log(set.slots)
             sets.push({
                 setID: set.identifier,
                 status: set.state,
@@ -228,7 +233,7 @@ export const getStartggSets = async (slug: string) => {
                 entrant2NextSetID: "",
                 entrant1Status: set.state,
                 entrant2Status: set.state,
-
+                other: {}
             })
         })
     }

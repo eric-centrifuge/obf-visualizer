@@ -1,14 +1,21 @@
-import BracketEntrant from "./BracketEntrant";
+import BracketEntrant from "@/utility/classes/bracket/BracketEntrant";
+import {SetGameResult} from "@/types/obf";
+
 
 export class BracketSet {
     setId: number | undefined = undefined
     uuid?: number | string | undefined = undefined
+    self: BracketSet
     leftEntrant: BracketEntrant | undefined
     rightEntrant: BracketEntrant | undefined
-    entrant1Result?: "win" | "lose"
-    entrant2Result?: "win" | "lose"
+    entrant1Result?: SetGameResult
+    entrant2Result?: SetGameResult
     entrant1Score: number = 0
     entrant2Score: number = 0
+    entrant1Ready: boolean = false
+    entrant2Ready: boolean = false
+    entrant1Reported: boolean = false
+    entrant2Reported: boolean = false
     leftSet: BracketSet | undefined
     rightSet: BracketSet | undefined
     parentSet
@@ -16,8 +23,15 @@ export class BracketSet {
     rightWinnerSet: BracketSet | undefined
     loserSet: BracketSet | undefined
     round: number
+    numberToWin: number = 3
     status: "started" | "pending" | "completed"
     type: "winners" | "losers"
+    startTime: Date | undefined = undefined
+    endTime: Date | undefined = undefined
+    onStream: boolean = false
+    winner: string = ""
+    loser: string = ""
+    placement: number
     other: { [key: string]: never }
 
     constructor(props: {
@@ -25,8 +39,8 @@ export class BracketSet {
         uuid?: number
         leftSet?: BracketSet
         rightSet?: BracketSet
-        leftPlayer?: BracketEntrant
-        rightPlayer?: BracketEntrant
+        leftEntrant?: BracketEntrant
+        rightEntrant?: BracketEntrant
         parentSet?: BracketSet
         leftWinner?: BracketSet
         rightWinner?: BracketSet
@@ -34,13 +48,15 @@ export class BracketSet {
         round: number
         type?: "winners" | "losers"
         status?: "started" | "completed" | "pending"
+        placement?: number
+        numberToWin?: number
         other?: { [key: string]: never }
     }) {
         const {
             setId,
             uuid,
-            leftPlayer,
-            rightPlayer,
+            leftEntrant,
+            rightEntrant,
             leftSet,
             rightSet,
             parentSet,
@@ -50,21 +66,26 @@ export class BracketSet {
             round,
             type,
             status,
+            placement,
+            numberToWin,
             other
         } = props
         this.setId = setId
         this.uuid = uuid
-        this.leftEntrant = leftPlayer
-        this.rightEntrant = rightPlayer
+        this.self = this
+        this.leftEntrant = leftEntrant
+        this.rightEntrant = rightEntrant
         this.addLeftSet(leftSet)
         this.addRightSet(rightSet)
         this.leftWinnerSet = leftWinner
         this.rightWinnerSet = rightWinner
         this.loserSet = loserSet
         this.parentSet = parentSet
+        this.placement = placement ? placement : 0
         this.round = round
         this.type = type ? type : "winners"
         this.status = status ? status : "pending"
+        this.numberToWin = numberToWin || 3
         this.other = other!
     }
 
@@ -80,9 +101,31 @@ export class BracketSet {
         return false
     }
 
+    isLeftWinner(): boolean {
+        if (this.type === "losers") return false
+        if (!this.loserSet) return false
+        if (!this.loserSet.leftWinnerSet) return false
+        return this.loserSet.leftWinnerSet!.setId === this.setId;
+
+    }
+
+    isRightWinner(): boolean {
+        if (this.type === "losers") return false
+        if (!this.loserSet) return false
+        if (!this.loserSet.rightWinnerSet) return false
+        return this.loserSet.rightWinnerSet!.setId === this.setId;
+
+    }
+
     isOnlyChild(): boolean {
         if (!this.parentSet) return false
-        return this.parentSet.rightSet !== undefined
+        return !this.parentSet.rightSet
+    }
+
+    getPlacement(placement: number = 1, node: BracketSet = this): number {
+        let finalPlacement = placement + 1
+        if (node.parentSet) finalPlacement = this.getPlacement(placement + 1, node.parentSet)
+        return finalPlacement
     }
 
     getSibling(): BracketSet | undefined {
@@ -137,23 +180,11 @@ export class BracketSet {
     setParentSet(parent: BracketSet) { if (parent) this.parentSet = parent }
     setMetaData(data: {[key: string]: never}) { this.other = {...this.other, ...data} }
 
-    updateScore(entrantId: string, score: number) {
-        if (entrantId === `${this.leftEntrant!.entrantID}`) this.entrant1Score = score
-        else if (entrantId === `${this.rightEntrant!.entrantID}`) this.entrant2Score = score
-        else return
-    }
-
-    advanceWinner(entrant: "left" | "right") {
-        if (entrant === "left") {
-            this.entrant1Result = "win"
-            this.entrant2Result = "lose"
-            if (this.parentSet) this.parentSet.setEntrant(this.leftEntrant)
-            if (this.loserSet) this.loserSet.setEntrant(this.rightEntrant)
+    updateScore(isP1: boolean, score: number) {
+        if (isP1) {
+            this.entrant1Score = score
         } else {
-            this.entrant1Result = "lose"
-            this.entrant2Result = "win"
-            if (this.parentSet) this.parentSet.setEntrant(this.rightEntrant)
-            if (this.loserSet) this.loserSet.setEntrant(this.leftEntrant)
+            this.entrant2Score = score
         }
     }
 }

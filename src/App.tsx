@@ -1,23 +1,14 @@
+// @ts-expect-error ts(2307)
 import './App.css'
-import {
-    Button,
-    Center,
-    Container,
-    Field,
-    Heading,
-    Input,
-    ProgressCircle,
-    SegmentGroup,
-    Text,
-    VStack
-} from "@chakra-ui/react"
+import {Button, Center, Container, Field, Heading, Input, SegmentGroup, Text, VStack} from "@chakra-ui/react"
 import {useRef, useState} from "react"
-import {Sample} from "@/types/obf"
 import {toaster} from "./components/ui/toaster"
 import BracketViewer from "./components/layout/BracketViewer"
+import {EntrantsContext, EventContext, SetsContext} from "./contexts/main.tsx"
+import {OBFEvent} from "./types/obf.ts"
 
 function App() {
-    const [tournamentData, setTournamentData] = useState(undefined)
+    const [tournamentData, setTournamentData] = useState<OBFEvent|undefined>(undefined)
     const formRef = useRef<HTMLFormElement>(null)
     const [value, setValue] = useState<string | null>("start.gg")
     const [loading, setLoading] = useState(false)
@@ -31,30 +22,6 @@ function App() {
                 url: data.get("url")
             })
         })
-    }
-
-    const LoadingIcon = () => {
-        return (
-            <ProgressCircle.Root value={null} size="sm">
-                <ProgressCircle.Circle>
-                    <ProgressCircle.Track />
-                    <ProgressCircle.Range />
-                </ProgressCircle.Circle>
-            </ProgressCircle.Root>
-        )
-    }
-
-    const apiPrefix = (api: string) => {
-        switch (api) {
-            case "mtch.gg":
-                return "https://mtch.gg/api/v1"
-            case "start.gg":
-                return "https://api.start.gg/gql/alpha"
-            case "challonge":
-                return "https://api.challonge.com/v1"
-            default:
-                return "https://mtch.gg/api/v1"
-        }
     }
 
     return (
@@ -74,12 +41,11 @@ function App() {
                                 if (res.ok) {
                                     const data = await res.json()
                                     setTournamentData(data)
-                                    console.log(data)
                                 } else {
                                     setTournamentData(undefined)
                                     toaster.error({
                                         title: "Error",
-                                        description: (await res.json() as any).error,
+                                        description: (await res.json() as {error: string}).error,
                                         duration: 5000,
                                         placement: "bottom-end"
                                     })
@@ -94,7 +60,7 @@ function App() {
                                     name={"api"}
                                     defaultValue={"mtch.gg"}
                                     value={value}
-                                    onValueChange={(e) => setValue(e.value)}>
+                                    onValueChange={(e: {value: string}) => setValue(e.value)}>
                                     <SegmentGroup.Indicator />
                                     <SegmentGroup.Items
                                         items={[
@@ -130,8 +96,18 @@ function App() {
                 </VStack>
             )
         }
-        { tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{(tournamentData as Sample).event.name}</Text></Center> }
-        { tournamentData && <BracketViewer tournament={tournamentData}/> }
+        { tournamentData && <Center><Text as={"h2"} fontSize={"1.5rem"} mb={5}>{tournamentData.event.name}</Text></Center> }
+        { tournamentData && (
+            <>
+                <EventContext value={tournamentData.event}>
+                    <EntrantsContext value={tournamentData.entrants}>
+                        <SetsContext value={tournamentData.sets}>
+                            <BracketViewer/>
+                        </SetsContext>
+                    </EntrantsContext>
+                </EventContext>
+            </>
+        )}
     </Container>
     )
 }
