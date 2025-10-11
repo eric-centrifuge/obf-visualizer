@@ -3,7 +3,7 @@ import {getStartggEntrants, getStartggEvent, getStartggSets} from "./server_modu
 export async function POST(request) {
     const {api, url} = await request.json()
     if (api === "start.gg") {
-        const slug = url.split("https://start.gg/")[1]
+        const slug = url.split("https://www.start.gg/")[1].split("/brackets")[0]
         const event = await getStartggEvent(slug)
         const entrants = await getStartggEntrants(slug)
         const sets = await getStartggSets(slug)
