@@ -22,31 +22,30 @@ import {
     SetsContext
 } from "../../contexts/main"
 import {BiSolidHide} from "react-icons/bi"
-import BracketViewerSet from "./BracketViewerSetTemplate.tsx";
-import BracketViewerStages from "./BracketViewerStages.tsx";
-import {EventState} from "../../types/obf.ts";
-import {CloseButton} from "../ui/close-button.tsx";
-import SetOverview from "../overlays/set-overview/SetOverview.tsx";
+import BracketViewerSet from "./BracketViewerSetTemplate"
+import BracketViewerStages from "./BracketViewerStages"
+import {EventState} from "../../types/obf.ts"
+import {CloseButton} from "../ui/close-button"
+import SetOverview from "../overlays/set-overview/SetOverview"
 
 const BracketViewer = () => {
     const event = useContext(EventContext)
     const entrants = useContext(EntrantsContext)
     const sets = useContext(SetsContext)
 
-    const indexedSets = sets.map((set, index) => ({
-        ...set,
-        setID: `${index + 1}`,
-    }))
-
     const bracket = new BracketEvent({
         entrants,
         // TODO: This is a temporary hack to fix matching set ids with mapSets.
         //  Need to allow this to work with any set id data type in the future.
-        sets: indexedSets,
+        sets: sets.map((set, index) => {
+            set.other.uuid = set.setID
+            return ({
+                ...set,
+                setID: `${index + 1}`,
+            })
+        }),
         layout: event.tournamentStructure
     })
-
-    bracket.mapSets(indexedSets)
 
     const [currentSet, setCurrentSet] = useState(undefined as unknown as BracketSet)
     const [open, setOpen] = useState(false)
@@ -228,7 +227,7 @@ const BracketViewer = () => {
                     </Box>
                     {
                         !!currentSet &&
-                        <SetContext value={indexedSets.find((set) => set.setID === `${currentSet.setId}`)!}>
+                        <SetContext value={sets.find((set) => set.setID === `${currentSet.setId}`)!}>
                           <Dialog.Root
                               immediate={true}
                               open={open}

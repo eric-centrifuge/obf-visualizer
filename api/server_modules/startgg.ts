@@ -81,7 +81,7 @@ export const getStartggEvent = async (slug: string) => {
             numberEntrants: event.numEntrants,
             tournamentStructure: tournamentType(event.tournament.tournamentType),
             date: event.startAt,
-            originURL: event.slug,
+            originURL: `https://start.gg/${event.slug}`,
             game: event.videogame.displayName,
             phases: event.phases.map((phase) => phase),
             other: {

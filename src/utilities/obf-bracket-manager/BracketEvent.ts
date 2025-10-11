@@ -33,7 +33,8 @@ class BracketEvent {
             entrants,
             layout,
             metaData,
-            state
+            state,
+            sets
         } = props
         this.id = id
         this.state = state || "pending"
@@ -42,6 +43,7 @@ class BracketEvent {
         this.entrants = this.createEntrants(entrants)
         this.sets = []
         this.root = this.createBracket()!
+
         if (this.root) {
             this.winnersRoot = this.root
             if (metaData) this.addMetaData(metaData)
@@ -72,6 +74,8 @@ class BracketEvent {
                     })
             }
         }
+
+        if (sets) this.mapSets(sets)
     }
 
     mapSets (sets: ISet[]) {

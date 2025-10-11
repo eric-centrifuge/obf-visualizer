@@ -1,11 +1,12 @@
 // @ts-expect-error ts(2307)
 import './App.css'
-import {Button, Center, Container, Field, Heading, Input, SegmentGroup, VStack} from "@chakra-ui/react"
+import {Button, Center, Container, Field, Group, Heading, Input, SegmentGroup, VStack} from "@chakra-ui/react"
 import {useRef, useState} from "react"
 import {toaster} from "./components/ui/toaster"
 import BracketViewer from "./components/layout/BracketViewer"
 import {EntrantsContext, EventContext, SetsContext} from "./contexts/main.tsx"
 import {OBFEvent} from "./types/obf.ts"
+import { FaExternalLinkAlt } from "react-icons/fa"
 
 function App() {
     const [tournamentData, setTournamentData] = useState<OBFEvent|undefined>(undefined)
@@ -58,7 +59,6 @@ function App() {
                                 <Field.Label>Source API</Field.Label>
                                 <SegmentGroup.Root
                                     name={"api"}
-                                    defaultValue={"mtch.gg"}
                                     value={value}
                                     onValueChange={(e: {value: string}) => setValue(e.value)}>
                                     <SegmentGroup.Indicator />
@@ -100,8 +100,13 @@ function App() {
         {
             tournamentData && (
                 <VStack>
-                    <Heading fontSize={"1.5rem"} mb={5}>
-                        { tournamentData.event.name }
+                    <Heading fontSize={"1.5rem"} my={5}>
+                        <Group gap={5}>
+                            <FaExternalLinkAlt />
+                            <a href={tournamentData.event.originURL} target={"_blank"} rel={"noreferrer"}>
+                                { tournamentData.event.name }
+                            </a>
+                        </Group>
                     </Heading>
                     <Button onClick={() => setTournamentData(undefined)}>Reset</Button>
                 </VStack>
