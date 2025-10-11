@@ -116,7 +116,7 @@ function App() {
                                             <Input
                                                 variant={"subtle"}
                                                 name={"url"}
-                                                placeholder="Enter Event URL Slug"
+                                                placeholder="Enter the URL of the event."
                                                 maxW={"300px"}
                                                 type={"text"}
                                                 autoComplete={"off"}
