@@ -75,7 +75,7 @@ class BracketEvent {
             }
         }
 
-        if (sets) this.mapSets(sets)
+        // if (sets) this.mapSets(sets)
     }
 
     mapSets (sets: ISet[]) {
