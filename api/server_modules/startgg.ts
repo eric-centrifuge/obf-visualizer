@@ -145,7 +145,7 @@ export const getStartggEntrants = async (slug: string) => {
             entrants.push({
                 entrantID: entrant.id,
                 initialSeed: entrant.initialSeedNum,
-                finalPlacement: entrant.standing.placement,
+                finalPlacement: entrant.standing ? entrant.standing.placement : 0,
                 entrantTag: entrant.participants[0].gamerTag,
                 personalInformation: [
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -230,7 +230,6 @@ export const getStartggSets = async (slug: string) => {
     }) as any
 
     if (data) {
-        console.log(data)
         data.event.sets.nodes.forEach((set) => {
             sets.push({
                 setID: set.identifier,

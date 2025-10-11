@@ -1,6 +1,6 @@
 import {Breadcrumb, Center, GridItem, HStack, SimpleGrid} from "@chakra-ui/react"
 import {useContext} from "react"
-import {BracketEventContext, BracketSetContext, EntrantsContext, EventContext, SetContext} from "../../../contexts/main"
+import {BracketEventContext, EntrantsContext, EventContext, SetContext} from "../../../contexts/main"
 import {MdChevronRight} from "react-icons/md"
 import EntrantProfile from "./EntrantProfile"
 import {generateRoundLabel} from "../../../utilities"
@@ -10,12 +10,11 @@ const SetOverview = () => {
     const event = useContext(EventContext)
     const entrants = useContext(EntrantsContext)
     const bracket = useContext(BracketEventContext)
-    const bracketSet = useContext(BracketSetContext)
     const set = useContext(SetContext)
     const player1 = entrants.find((entrant) => entrant.entrantID === set.entrant1ID)
     const player2 = entrants.find((entrant) => entrant.entrantID === set.entrant2ID)
     const numberOfRounds = bracket.sets
-        .filter((set) => set.type === bracketSet.type.toLowerCase())
+        .filter((bracketSet) => bracketSet.type === (+set.roundID ? "winners" : "losers"))
         .map((set) => set.round)
         .reduce((previousValue, currentValue) => previousValue > currentValue ? previousValue : currentValue)
 

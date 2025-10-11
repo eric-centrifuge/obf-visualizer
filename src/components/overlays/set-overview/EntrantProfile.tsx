@@ -3,7 +3,7 @@ import {useContext} from "react"
 import {FaHeart, FaPersonCircleQuestion} from "react-icons/fa6"
 import {FiHeart} from "react-icons/fi"
 import {IEntrant, SetGameResult, SetStatus} from "../../../types/obf"
-import {BracketSetContext, SetContext} from "../../../contexts/main"
+import {SetContext} from "../../../contexts/main"
 
 const EntrantProfile = ({
     isP1,
@@ -12,12 +12,6 @@ const EntrantProfile = ({
     isP1: boolean
     entrant: IEntrant | undefined
 }) => {
-    const bracketSet = useContext(BracketSetContext)
-
-    const {
-        numberToWin
-    } = bracketSet
-
     const set = useContext(SetContext)
 
     const {
@@ -26,7 +20,12 @@ const EntrantProfile = ({
         entrant2Score: score2,
         entrant1Result,
         entrant2Result,
+        other: customFields,
     } = set
+
+    const {
+        numberToWin
+    } = customFields
 
     const setResult = isP1 ? entrant1Result : entrant2Result
 
@@ -97,23 +96,6 @@ const EntrantProfile = ({
                           <FaPersonCircleQuestion/>
                         </EmptyState.Indicator>
                         <EmptyState.Title>Pending</EmptyState.Title>
-                        <EmptyState.Description>
-                          Waiting for
-                            {
-                                isP1 &&
-                                <>
-                                    { bracketSet.leftSet && ` Winner of ${bracketSet.leftSet!.setId}` }
-                                    { bracketSet.leftWinnerSet && !bracketSet.leftSet && ` Loser of ${bracketSet.leftWinnerSet!.setId}` }
-                                </>
-                            }
-                            {
-                                !isP1 &&
-                                <>
-                                    { bracketSet.rightSet && !bracketSet.rightWinnerSet && ` Winner of ${bracketSet.rightSet!.setId}` }
-                                    { bracketSet.rightWinnerSet && !bracketSet.rightSet && ` Loser of ${bracketSet.rightWinnerSet.setId}` }
-                                </>
-                            }
-                        </EmptyState.Description>
                       </EmptyState.Content>
                     </EmptyState.Root>
                 }

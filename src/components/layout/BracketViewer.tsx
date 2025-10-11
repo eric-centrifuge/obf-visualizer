@@ -12,21 +12,23 @@ import {
 } from "@chakra-ui/react"
 import BracketEvent from "../../utilities/obf-bracket-manager/BracketEvent"
 import BracketSet from "../../utilities/obf-bracket-manager/BracketSet"
-import {useContext, useState} from "react"
+import {useContext, useEffect, useState} from "react"
 import {
     BracketEventContext,
     BracketSetContext,
     BracketViewerConfigsContext,
     EntrantsContext,
-    EventContext, SetContext,
+    EventContext,
+    SetContext,
     SetsContext
 } from "../../contexts/main"
 import {BiSolidHide} from "react-icons/bi"
 import BracketViewerSet from "./BracketViewerSetTemplate"
 import BracketViewerStages from "./BracketViewerStages"
-import {EventState} from "../../types/obf.ts"
+import {EventState, ISet} from "../../types/obf.ts"
 import {CloseButton} from "../ui/close-button"
 import SetOverview from "../overlays/set-overview/SetOverview"
+import {convertBracketSetToOBF} from "../../utilities";
 
 const BracketViewer = () => {
     const event = useContext(EventContext)
@@ -47,7 +49,7 @@ const BracketViewer = () => {
         layout: event.tournamentStructure
     })
 
-    const [currentSet, setCurrentSet] = useState(undefined as unknown as BracketSet)
+    const [currentSet, setCurrentSet] = useState(undefined as unknown as ISet | undefined)
     const [open, setOpen] = useState(false)
     const unsupported = bracket.layout.toLowerCase() !== "single elimination" && bracket.layout.toLowerCase() !== "double elimination"
     const bracketViewerConfigs = {
@@ -72,6 +74,13 @@ const BracketViewer = () => {
         setHeight,
         lineColor,
     } = bracketViewerConfigs
+
+    useEffect(() => {
+        setOpen(true)
+        return () => {
+            console.log(currentSet)
+        }
+    }, [currentSet])
 
     if (entrants.length <= 2) return (
         <Container minH={"500px"} w={"full"}>
@@ -130,8 +139,7 @@ const BracketViewer = () => {
                         set={set}
                         onMatchClick={(set) => {
                             if (!sets.length) return
-                            setCurrentSet(set)
-                            setOpen(true)
+                            setCurrentSet(convertBracketSetToOBF(set))
                         }}
                     />
                 </Box>
@@ -188,8 +196,7 @@ const BracketViewer = () => {
                                             onMatchClick={
                                                 (set) => {
                                                     if (!sets.length || event.state === EventState.Open) return
-                                                    setCurrentSet(set)
-                                                    setOpen(true)
+                                                    setCurrentSet(convertBracketSetToOBF(set))
                                                 }
                                             }
                                         />
@@ -205,8 +212,7 @@ const BracketViewer = () => {
                                                 onMatchClick={
                                                     (set) => {
                                                         if (!sets.length) return
-                                                        setCurrentSet(set)
-                                                        setOpen(true)
+                                                        setCurrentSet(convertBracketSetToOBF(set))
                                                     }
                                                 }
                                             />
@@ -227,7 +233,7 @@ const BracketViewer = () => {
                     </Box>
                     {
                         !!currentSet &&
-                        <SetContext value={sets.find((set) => set.setID === `${currentSet.setId}`)!}>
+                        <SetContext value={currentSet}>
                           <Dialog.Root
                               immediate={true}
                               open={open}
