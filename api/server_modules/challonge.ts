@@ -75,10 +75,9 @@ const extractEventData = (tournament: any) => {
         name,
         state,
         numberEntrants: tournament.participants.length,
-        originalURL: `https://challonge.com/${tournamentId}`,
+        originURL: `https://challonge.com/${tournamentId}`,
         tournamentStructure,
         date: startTime,
-        originURL: tournament.url,
         game: tournament.game_name,
         phases: [],
         other: {
