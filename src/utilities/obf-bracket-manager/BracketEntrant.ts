@@ -3,12 +3,12 @@ export class BracketEntrant {
     entrantTag = ""
     initialSeed: number
     finalPlacement?: number
-    other?: { [key: string]: never }
+    other: { [key: string]: never }
 
     constructor(props: {
         entrantTag: string;
         other: {
-            icon: string | null;
+            image: string | null;
             seed: number;
             misc: string | null;
             username: string;
@@ -35,7 +35,7 @@ export class BracketEntrant {
         this.initialSeed = initialSeed || 0
         this.entrantTag = entrantTag
         this.finalPlacement = finalPlacement || 0
-        this.other = other || undefined
+        this.other = other || {}
     }
 
     setSeed(seed: number) {
