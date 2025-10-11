@@ -230,12 +230,13 @@ export const getStartggSets = async (slug: string) => {
     }) as any
 
     if (data) {
+        console.log(data)
         data.event.sets.nodes.forEach((set) => {
             sets.push({
                 setID: set.identifier,
                 status: set.state,
-                entrant1ID: set.slots[0].entrant.id,
-                entrant2ID: set.slots[1].entrant.id,
+                entrant1ID: set.slots[0].entrant ? set.slots[0].entrant.id : "null",
+                entrant2ID: set.slots[1].entrant ? set.slots[1].entrant.id : "null",
                 entrant1PrevSetID: set.slots[0].prereqId,
                 entrant2PrevSetID: set.slots[1].prereqId,
                 entrant1NextSetID: "",
