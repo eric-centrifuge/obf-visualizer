@@ -39,6 +39,17 @@ function App() {
         })
     }
 
+    const placeholders = (api: string) => {
+        switch (api) {
+            case "start.gg":
+                return "https://www.start.gg/tournament/kmlocal-33/event/ultimate-singles-7-30-pm-main-event/brackets/2095015/3058733"
+            case "challonge.com":
+                return "https://challonge.com/DSASIA1"
+            case "mtch.gg":
+                return "https://mtch.gg/events/2dcd1eaa-b6bc-43d3-afd6-eb142b796e5d"
+        }
+    }
+
     return (
         <VStack
             minH={"100vh"}
@@ -99,7 +110,7 @@ function App() {
                                                             label: <>start.gg</>
                                                         },
                                                         {
-                                                            value: "challonge",
+                                                            value: "challonge.com",
                                                             label: <>challonge</>
                                                         },
                                                         {
@@ -116,7 +127,7 @@ function App() {
                                             <Input
                                                 variant={"subtle"}
                                                 name={"url"}
-                                                placeholder="Enter the URL of the event."
+                                                placeholder={placeholders(value as string)}
                                                 maxW={"300px"}
                                                 type={"text"}
                                                 autoComplete={"off"}
@@ -131,7 +142,7 @@ function App() {
                                             />
                                         </Field.Root>
 
-                                        <Button loading={loading} type="submit">Render Bracket</Button>
+                                        <Button loading={loading} type="submit">Preview Bracket</Button>
                                     </VStack>
                                 </form>
                             </VStack>
@@ -173,7 +184,12 @@ function App() {
                     asChild>
                     <footer>
                         <VStack>
-                            <Text>made by <Link href={"https://x.com/jaxvex"}><Em>Jaxvex</Em></Link></Text>
+                            <Text>
+                                Brackets rendered using <Link href={"https://github.com/openbracketformat/openbracketformat"}><Em>Open Bracket Format</Em></Link>
+                            </Text>
+                            <Text>
+                                made by <Link href={"https://x.com/jaxvex"}><Em>Jaxvex</Em></Link>
+                            </Text>
                             <Group gap={2}>
                                 <Tooltip content={"GitHub"}>
                                     <Link href="https://github.com/eric-centrifuge/obf-visualizer" target={"_blank"} rel={"noreferrer"}>

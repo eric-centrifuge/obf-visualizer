@@ -23,9 +23,7 @@ const EntrantProfile = ({
         other: customFields,
     } = set
 
-    const {
-        numberToWin
-    } = customFields
+    const { numberToWin } = customFields
 
     const setResult = isP1 ? entrant1Result : entrant2Result
 

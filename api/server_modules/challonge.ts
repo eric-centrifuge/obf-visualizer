@@ -1,160 +1,163 @@
-import {makeBasicOBF, makeOBFEvent, makeOBFSet, makeOBFEntrant} from "./schema.ts";
+import {IEntrant, IEvent, ISet} from "../../src/types/obf.ts";
 
-async function getData(url = "") {
-  let response
-  try {
-    response = await fetch(url, {
-      method: "GET",
-      mode: "same-origin",
-      cache: "no-cache",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      redirect: "follow",
-      referrerPolicy: "no-referrer",
+async function getData(endpoint = "") {
+    const response = await fetch(`${process.env.CHALLONGE_API}${endpoint}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
     })
     return await response.json()
-  }
-  catch(e) {
-    console.log(e)
-    return null
-  }
 }
 
-export const getTournamentInfo = async (event) => {
-  let obf = makeBasicOBF()
+const statusCheck = (status) => {
+    if (status == 'open') return 'started'
+    if (status == 'complete') return "completed"
+    return status
+}
 
-  const eventName = event.match(/([^\/]*)\/*$/)[1]
-  const subDomain = event.match(/(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/i)
-  let name
-  if (subDomain) {
-    const sub = subDomain[1]
-    name = `${sub}-${eventName}`
-  } else {
-    name = eventName
-  }
+const checkWinner = (winnerId, playerId) => {
+    if (!winnerId) return ""
+    return winnerId == playerId ? "win" : "lose"
+}
 
-  const queryString = `${name}.json?api_key=${process.env.CHALLONGE_KEY}&include_participants=1&include_matches=1`
-  const eventData = await getData(`${process.env.CHALLONGE_API}tournaments/${queryString}`)
-
-  if (eventData.errors)
-    return eventData.errors
-
-  const tournament = eventData.tournament
-
-  const addZero = (num) => num < 10 ? "0"+String(num) : String(num)
-  const d = new Date(tournament.started_at)
-  const ISO = `${d.getFullYear()}-${addZero(d.getMonth()+1)}-${addZero(d.getDate())}`
-  obf.event = makeOBFEvent(tournament.name, ISO, tournament.game_name, tournament.participants_count, tournament.full_challonge_url, tournament.tournament_type)
-
-  const participants = eventData.tournament.participants
-
-  obf.entrants = participants.map( p => makeOBFEntrant(p.participant.id, p.participant.name, p.participant.seed, p.participant.final_rank))
-  obf.entrants = obf.entrants.filter((e) => e.finalPlacement ? true : false)
-
-  const sets = eventData.tournament.matches
-
-  const statusCheck = (s) => {
-    if (s == 'open')
-      return 'started'
-
-    if (s == 'complete')
-      return "completed"
-
-    return s
-  }
-
-  const checkWinner = (wid, pid) => {
-    if (!wid)
-      return ""
-
-    return wid == pid ? "win" : "lose"
-  }
-
-  const scores = (score, player, set) => {
-    if (!score)
-      return 0
-
-    if (player == 0) {
-      return score.match(/[\-]?[0-9]/gi)[0]
-    }
-
-
+const scores = (score, player, set) => {
+    if (!score) return 0
+    if (player == 0) return score.match(/[\-]?[0-9]/gi)[0]
     if (player == 1) {
-
-      if (score.charAt(0) == '-') {
-        const scoreSplit = score.split('-')
-        if (scoreSplit.length == 4) {
-          return '-' + scoreSplit[3]
+        if (score.charAt(0) == '-') {
+            const scoreSplit = score.split('-')
+            if (scoreSplit.length == 4) return '-' + scoreSplit[3]
+            else return scoreSplit[2]
         } else {
-          return scoreSplit[2]
+            const scoreSplit = score.split('-')
+            if (scoreSplit.length == 3) return '-' + scoreSplit[2]
+            else return scoreSplit[1]
         }
+    }
+    return 0
+}
 
-      } else {
-        const scoreSplit = score.split('-')
-        if (scoreSplit.length == 3) {
-          return '-' + scoreSplit[2]
-        } else {
-          return scoreSplit[1]
+export const getChallongeEventInfo = async (tournamentId: string) => {
+    const params = new URLSearchParams()
+
+    params.set("api_key", `${process.env.CHALLONGE_KEY}`)
+    params.set("include_participants", "1")
+    params.set("include_matches", "1")
+
+    const eventData = await getData(`tournaments/${tournamentId}.json?${params.toString()}`) as unknown as any
+
+    if (eventData.errors) return undefined
+    else {
+        const { tournament } = eventData
+        return ({
+            event: extractEventData(tournament),
+            entrants: extractEntrantData(tournament),
+            sets: extractSetData(tournament),
+        })
+    }
+}
+
+const extractEventData = (tournament: any) => {
+    const {
+        id,
+        name,
+        url: tournamentId,
+        tournament_type: tournamentStructure,
+        started_at: startTime,
+        completed_at: endTime,
+        state,
+    } = tournament
+
+    return ({
+        name,
+        state,
+        numberEntrants: tournament.participants.length,
+        originalURL: `https://challonge.com/${tournamentId}`,
+        tournamentStructure,
+        date: startTime,
+        originURL: tournament.url,
+        game: tournament.game_name,
+        phases: [],
+        other: {
+            startTime,
+            endTime,
+            id,
         }
-      }
-    }
+    } as unknown as IEvent)
+}
 
-    return "theoretically shouldn't get here"
-  }
+const extractEntrantData = (tournament: any) => {
+    return tournament.participants
+        .map((participant) => {
+            const { participant: entrant } = participant
+            const {
+                id: entrantID,
+                name: entrantTag,
+                seed: initialSeed,
+                final_rank: finalPlacement,
+                attached_participatable_portrait_url: image,
+            } = entrant
 
-  obf.sets = sets.map((s) => {
-    let base = makeOBFSet(s.match.id, s.match.player1_id, s.match.player2_id, statusCheck(s.match.state), checkWinner(s.match.winner_id, s.match.player1_id),
-        checkWinner(s.match.winner_id, s.match.player2_id), scores(s.match.scores_csv, 0), scores(s.match.scores_csv, 1, s.match), "", "", [])
-    if (s.match.player1_prereq_match_id) {
-      base.entrant1PrevSetID = s.match.player1_prereq_match_id
-    }
+            return ({
+                entrantID,
+                entrantTag,
+                initialSeed,
+                finalPlacement,
+                personalInformation: [
+                    {
+                        name: entrantTag,
+                        country: "",
+                        tag: entrantTag,
+                        prefix: "",
+                    }
+                ],
+                other: {
+                    image,
+                }
+            } as unknown as IEntrant)
+        })
+}
 
-    if (s.match.player2_prereq_match_id) {
-      base.entrant2PrevSetID = s.match.player2_prereq_match_id
-    }
+const extractSetData = (tournament: any) => {
+    return tournament.matches
+        .map((match) => {
+            const { match: set } = match
+            const {
+                id: setID,
+                state,
+                player1_id: entrant1ID,
+                player2_id: entrant2ID,
+                scores_csv: scores,
+                identifier: uuid,
+                winner_id: winnerID,
+                loser_id: loserID,
+                player1_prereq_match_id: entrant1PrevSetID,
+                player2_prereq_match_id: entrant2PrevSetID,
+                started_at: startTime,
+                completed_at: endTime,
+                round: roundID,
+            } = set
 
-    return base
-  })
-
-  for (let i= 0; i < obf.sets.length; i++) {
-    let s = obf.sets[i]
-    if (!s.entrant1PrevSetID) {
-      delete s.entrant1PrevSetID
-    } else {
-      let nextSet = obf.sets.findIndex((v) => v.setID == s.entrant1PrevSetID)
-
-      if (nextSet != -1) {
-        const e1id = s.entrant1ID
-
-        if (e1id == obf.sets[nextSet].entrant1ID) {
-          obf.sets[nextSet].entrant1NextSetID = s.setID
-        } else {
-          obf.sets[nextSet].entrant2NextSetID = s.setID
-        }
-      }
-    }
-
-    if (!s.entrant2PrevSetID) {
-      delete s.entrant2PrevSetID
-    } else {
-      let nextSet = obf.sets.findIndex((v) => v.setID == s.entrant2PrevSetID)
-      if (nextSet != -1) {
-        const e1id = s.entrant2ID
-
-        if (e1id == obf.sets[nextSet].entrant1ID) {
-          obf.sets[nextSet].entrant1NextSetID = s.setID
-        } else {
-          obf.sets[nextSet].entrant2NextSetID = s.setID
-        }
-      }
-    }
-  }
-
-
-  if (!eventData)
-    return obf
-
-  return obf
+            return ({
+                setID,
+                state,
+                entrant1ID,
+                entrant2ID,
+                entrant1Score: scores.split("-")[0],
+                entrant2Score: scores.split("-")[1],
+                entrant1PrevSetID,
+                entrant2PrevSetID,
+                roundID: `${roundID}`,
+                other: {
+                    startTime,
+                    endTime,
+                    winnerID,
+                    loserID,
+                    uuid
+                }
+            } as unknown as ISet)
+        })
 }

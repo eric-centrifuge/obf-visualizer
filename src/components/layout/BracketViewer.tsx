@@ -37,10 +37,8 @@ const BracketViewer = () => {
 
     const bracket = new BracketEvent({
         entrants,
-        // TODO: This is a temporary hack to fix matching set ids with mapSets.
-        //  Need to allow this to work with any set id data type in the future.
         sets: sets.map((set, index) => {
-            set.other.uuid = set.setID
+            set.other.uuid = set.setID // store original setID as metadata
             return ({
                 ...set,
                 setID: `${index + 1}`,
@@ -77,9 +75,6 @@ const BracketViewer = () => {
 
     useEffect(() => {
         setOpen(true)
-        return () => {
-            console.log(currentSet)
-        }
     }, [currentSet])
 
     if (entrants.length <= 2) return (
