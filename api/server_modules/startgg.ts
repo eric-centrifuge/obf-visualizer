@@ -234,17 +234,14 @@ export const getStartggSets = async (slug: string) => {
             sets.push({
                 setID: set.identifier,
                 status: set.state,
-                winnerID: set.winnerId,
                 entrant1ID: set.slots[0].entrant.id,
                 entrant2ID: set.slots[1].entrant.id,
                 entrant1PrevSetID: set.slots[0].prereqId,
                 entrant2PrevSetID: set.slots[1].prereqId,
                 entrant1NextSetID: "",
                 entrant2NextSetID: "",
-                entrant1Status: set.state,
-                entrant2Status: set.state,
                 other: {}
-            })
+            } as unknown as ISet)
         })
     }
 
