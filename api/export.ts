@@ -2,11 +2,11 @@ import {getStartggEntrants, getStartggEvent, getStartggSets} from "./server_modu
 
 export async function POST(request) {
     const {api, url} = await request.json()
-    console.log(api, url)
     if (api === "start.gg") {
-        const event = await getStartggEvent(url)
-        const entrants = await getStartggEntrants(url)
-        const sets = await getStartggSets(url)
+        const slug = url.split("https://start.gg/")[1]
+        const event = await getStartggEvent(slug)
+        const entrants = await getStartggEntrants(slug)
+        const sets = await getStartggSets(slug)
         return Response.json({event, entrants, sets})
     }
 
