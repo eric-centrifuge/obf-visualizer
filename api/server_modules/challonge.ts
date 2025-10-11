@@ -12,33 +12,6 @@ async function getData(endpoint = "") {
     return await response.json()
 }
 
-const statusCheck = (status) => {
-    if (status == 'open') return 'started'
-    if (status == 'complete') return "completed"
-    return status
-}
-
-const checkWinner = (winnerId, playerId) => {
-    if (!winnerId) return ""
-    return winnerId == playerId ? "win" : "lose"
-}
-
-const scores = (score, player, set) => {
-    if (!score) return 0
-    if (player == 0) return score.match(/[\-]?[0-9]/gi)[0]
-    if (player == 1) {
-        if (score.charAt(0) == '-') {
-            const scoreSplit = score.split('-')
-            if (scoreSplit.length == 4) return '-' + scoreSplit[3]
-            else return scoreSplit[2]
-        } else {
-            const scoreSplit = score.split('-')
-            if (scoreSplit.length == 3) return '-' + scoreSplit[2]
-            else return scoreSplit[1]
-        }
-    }
-    return 0
-}
 
 export const getChallongeEventInfo = async (tournamentId: string) => {
     const params = new URLSearchParams()
