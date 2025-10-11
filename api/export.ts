@@ -1,6 +1,6 @@
 import {getStartggEntrants, getStartggEvent, getStartggSets} from "./server_modules/startgg.js"
-import {getChallongeEventInfo} from "./server_modules/challonge.ts";
-import {OBFEvent} from "../src/types/obf.ts";
+import {getChallongeEventInfo} from "./server_modules/challonge.js"
+import {OBFEvent} from "../src/types/obf.ts"
 
 export async function POST(request) {
     const {api, url} = await request.json()
