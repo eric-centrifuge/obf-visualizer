@@ -25,18 +25,31 @@ import {Tooltip} from "./components/ui/tooltip"
 function App() {
     const [tournamentData, setTournamentData] = useState<OBFEvent|undefined>(undefined)
     const formRef = useRef<HTMLFormElement>(null)
-    const [value, setValue] = useState<string | null>("start.gg")
+    const [api, setApi] = useState<string | null>("start.gg")
     const [loading, setLoading] = useState(false)
 
     const onSubmit = (data: FormData) => {
-        return fetch(`/api/export`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                api: data.get("api"),
-                url: data.get("url")
+        const api = data.get("api") as string
+        const url = new URL(data.get("url") as string)
+
+        if (!api.includes(url.hostname)) {
+            toaster.error({
+                title: "Error",
+                description: "Invalid URL. Please ensure the URL is from the selected API.",
+                duration: 5000,
+                placement: "bottom-end"
             })
-        })
+            return new Promise((resolve) => resolve(new Response("Invalid URL", {status: 400})))
+        } else {
+            return fetch(`/api/export`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    api,
+                    url
+                })
+            })
+        }
     }
 
     const placeholders = (api: string) => {
@@ -79,7 +92,8 @@ function App() {
                                     e.preventDefault()
                                     setLoading(true)
                                     onSubmit(new FormData(formRef.current as unknown as HTMLFormElement))
-                                        .then(async (res) => {
+                                        // @ts-expect-error res is unknown
+                                        .then(async (res: Response) => {
                                             if (res.ok) {
                                                 const data = await res.json()
                                                 setTournamentData(data)
@@ -100,8 +114,8 @@ function App() {
                                             <SegmentGroup.Root
                                                 name={"api"}
                                                 mx={"auto"}
-                                                value={value}
-                                                onValueChange={(e: {value: string}) => setValue(e.value)}>
+                                                value={api}
+                                                onValueChange={(e: {value: string}) => setApi(e.value)}>
                                                 <SegmentGroup.Indicator />
                                                 <SegmentGroup.Items
                                                     items={[
@@ -127,7 +141,7 @@ function App() {
                                             <Input
                                                 variant={"subtle"}
                                                 name={"url"}
-                                                placeholder={placeholders(value as string)}
+                                                placeholder={placeholders(api as string)}
                                                 maxW={"300px"}
                                                 type={"text"}
                                                 autoComplete={"off"}
@@ -188,7 +202,7 @@ function App() {
                                 Brackets rendered using <Link href={"https://github.com/openbracketformat/openbracketformat"}><Em>Open Bracket Format</Em></Link>
                             </Text>
                             <Text>
-                                made by <Link href={"https://x.com/jaxvex"}><Em>Jaxvex</Em></Link>
+                                made by <Link href={"https://x.com/jaxvex"}><Em>@jaxvex</Em></Link>
                             </Text>
                             <Group gap={2}>
                                 <Tooltip content={"GitHub"}>
