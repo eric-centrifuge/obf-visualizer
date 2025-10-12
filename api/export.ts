@@ -1,15 +1,21 @@
 import {getStartggEntrants, getStartggEvent, getStartggSets} from "./server_modules/startgg.js"
 import {getChallongeEventInfo} from "./server_modules/challonge.js"
-import {OBFEvent} from "../src/types/obf.ts"
+import {OBFEvent} from "../src/types/obf"
 
 export async function POST(request) {
     const {api, url} = await request.json()
+
     if (api === "start.gg") {
         const slug = url.split("https://www.start.gg/")[1].split("/brackets")[0]
         const event = await getStartggEvent(slug)
         const entrants = await getStartggEntrants(slug)
         const sets = await getStartggSets(slug)
-        return Response.json({event, entrants, sets})
+        const obf = {event, entrants, sets} as unknown as OBFEvent
+        if (obf.event) return Response.json(obf)
+        else return Response.json({ error : "Could not retrieve event information." }, {
+            status: 400,
+            statusText: "Could not retrieve event information.",
+        })
     }
 
     else if (api === "challonge.com") {

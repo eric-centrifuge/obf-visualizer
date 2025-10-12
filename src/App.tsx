@@ -55,7 +55,7 @@ function App() {
     const placeholders = (api: string) => {
         switch (api) {
             case "www.start.gg":
-                return "https://www.start.gg/tournament/kmlocal-33/event/ultimate-singles-7-30-pm-main-event/brackets/2095015/3058733"
+                return "https://www.start.gg/tournament/community-showcase-at-evo-2023/event/dnf-duel-playstation-4-pro/brackets/1421161/2154110"
             case "challonge.com":
                 return "https://challonge.com/DSASIA1"
             case "mtch.gg":
@@ -141,7 +141,6 @@ function App() {
                                             <Input
                                                 variant={"subtle"}
                                                 name={"url"}
-                                                placeholder={placeholders(hostName as string)}
                                                 maxW={"300px"}
                                                 type={"text"}
                                                 autoComplete={"off"}
@@ -154,6 +153,7 @@ function App() {
                                                 }}
                                                 required
                                             />
+                                            <Field.HelperText>Example: {placeholders(hostName as string)}</Field.HelperText>
                                         </Field.Root>
 
                                         <Button loading={loading} type="submit">Preview Bracket</Button>
