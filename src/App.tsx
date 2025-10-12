@@ -32,8 +32,6 @@ function App() {
         const api = data.get("hostname") as string
         const url = new URL(data.get("url") as string)
 
-        console.log(api, url.hostname)
-
         if (!api.includes(url.hostname)) {
             toaster.error({
                 title: "Error",
@@ -114,7 +112,7 @@ function App() {
                                     <VStack gap={5}>
                                         <Field.Root maxW={"300px"}>
                                             <SegmentGroup.Root
-                                                name={"api"}
+                                                name={"hostname"}
                                                 mx={"auto"}
                                                 value={hostName}
                                                 onValueChange={(e: {value: string}) => setHostName(e.value)}>

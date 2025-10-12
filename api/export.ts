@@ -28,8 +28,9 @@ export async function POST(request) {
         const eventId = url.split("https://mtch.gg/events/")[1]
         const request = await fetch(`https://mtch.gg/api/v1/events/get-event?eventId=${eventId}`)
         if (request.ok) {
-            const event = await request.json()
-            return Response.json(event)
+            const obf = await request.json() as unknown as OBFEvent
+            obf.event.originURL = `https://mtch.gg/events/${eventId}`
+            return Response.json(obf)
         }
     }
 
