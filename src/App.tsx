@@ -25,12 +25,14 @@ import {Tooltip} from "./components/ui/tooltip"
 function App() {
     const [tournamentData, setTournamentData] = useState<OBFEvent|undefined>(undefined)
     const formRef = useRef<HTMLFormElement>(null)
-    const [api, setApi] = useState<string | null>("start.gg")
+    const [hostName, setHostName] = useState<string | null>("www.start.gg")
     const [loading, setLoading] = useState(false)
 
     const onSubmit = (data: FormData) => {
-        const api = data.get("api") as string
+        const api = data.get("hostname") as string
         const url = new URL(data.get("url") as string)
+
+        console.log(api, url.hostname)
 
         if (!api.includes(url.hostname)) {
             toaster.error({
@@ -54,7 +56,7 @@ function App() {
 
     const placeholders = (api: string) => {
         switch (api) {
-            case "start.gg":
+            case "www.start.gg":
                 return "https://www.start.gg/tournament/kmlocal-33/event/ultimate-singles-7-30-pm-main-event/brackets/2095015/3058733"
             case "challonge.com":
                 return "https://challonge.com/DSASIA1"
@@ -114,13 +116,13 @@ function App() {
                                             <SegmentGroup.Root
                                                 name={"api"}
                                                 mx={"auto"}
-                                                value={api}
-                                                onValueChange={(e: {value: string}) => setApi(e.value)}>
+                                                value={hostName}
+                                                onValueChange={(e: {value: string}) => setHostName(e.value)}>
                                                 <SegmentGroup.Indicator />
                                                 <SegmentGroup.Items
                                                     items={[
                                                         {
-                                                            value: "start.gg",
+                                                            value: "www.start.gg",
                                                             label: <>start.gg</>
                                                         },
                                                         {
@@ -141,7 +143,7 @@ function App() {
                                             <Input
                                                 variant={"subtle"}
                                                 name={"url"}
-                                                placeholder={placeholders(api as string)}
+                                                placeholder={placeholders(hostName as string)}
                                                 maxW={"300px"}
                                                 type={"text"}
                                                 autoComplete={"off"}
