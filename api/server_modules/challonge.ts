@@ -93,18 +93,10 @@ const extractEntrantData = (tournament: any) => {
         })
 }
 
-const sortSetsByIdentifier = (sets) => {
-    return sets.sort((setA, setB) => {
-        if (setA.match.identifier < setB.match.identifier) return -1
-        else if (setA.match.identifier > setB.match.identifier) return 1
-        else return 0
-    })
-}
-
 const extractSetData = (tournament: any) => {
     const { matches } =  tournament
-    const winnersSets = sortSetsByIdentifier(matches.filter((data) => data.match.round > 0))
-    const loserSets = sortSetsByIdentifier(matches.filter((data) => data.match.round < 0))
+    const winnersSets = matches.filter((data) => data.match.round > 0)
+    const loserSets = matches.filter((data) => data.match.round < 0)
     const winnersFinals = winnersSets.pop()
     const reorderedMatches = [winnersSets, loserSets, winnersFinals].flat()
 
