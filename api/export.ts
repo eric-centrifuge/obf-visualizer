@@ -31,7 +31,7 @@ export async function POST(request) {
         })
     }
 
-    else if (api.mtch("mtch.gg")) {
+    else if (api.includes("mtch.gg")) {
         const eventId = url.split("https://mtch.gg/events/")[1]
         const request = await fetch(`https://mtch.gg/api/v1/events/get-event?eventId=${eventId}`)
         if (request.ok) {

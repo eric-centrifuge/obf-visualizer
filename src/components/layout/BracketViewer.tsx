@@ -37,13 +37,7 @@ const BracketViewer = () => {
 
     const bracket = new BracketEvent({
         entrants,
-        sets: sets.map((set, index) => {
-            set.other.uuid = set.setID // store original setID as metadata
-            return ({
-                ...set,
-                setID: `${index + 1}`,
-            })
-        }),
+        sets,
         layout: event.tournamentStructure
     })
 
@@ -147,7 +141,7 @@ const BracketViewer = () => {
         <BracketEventContext.Provider value={bracket}>
             <BracketSetContext value={currentSet}>
                 <BracketViewerConfigsContext value={bracketViewerConfigs}>
-                    <Box maxH={"100vh"} overflow={"scroll"}>
+                    <Box h={"60vh"} overflow={"scroll"}>
                         <Box overflow={"visible"} pos={"relative"}>
                             {
                                 unsupported &&
@@ -165,7 +159,7 @@ const BracketViewer = () => {
                                   </Container>
 
                                   <Box as={"ul"} display={"flex"} pt={10}>
-                                      {RenderChildren(bracket.root!)}
+                                      { RenderChildren(bracket.root!) }
                                   </Box>
                                 </>
                             }

@@ -151,11 +151,11 @@ const BracketViewerSet = ({
                     fontWeight={"bold"}
                     px={4}
                     color={setIDColor}>
-                    <Text w={"100%"} height={"100%"} pos={"relative"}>
+                    <Box w={"100%"} height={"100%"} pos={"relative"}>
                         <AbsoluteCenter>
                             { set.setId }
                         </AbsoluteCenter>
-                    </Text>
+                    </Box>
                 </Box>
 
                 <Box

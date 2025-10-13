@@ -53,7 +53,7 @@ function App() {
         }
     }
 
-    const placeholders = (api: string) => {
+    const examples = (api: string) => {
         switch (api) {
             case "www.start.gg":
                 return "https://www.start.gg/tournament/community-showcase-at-evo-2023/event/dnf-duel-playstation-4-pro/brackets/1421161/2154110"
@@ -72,7 +72,7 @@ function App() {
             asChild>
             <main>
                 <Container
-                    py={5}
+                    p={0}
                     maxW={"full"}
                     asChild>
                     <header>
@@ -154,7 +154,7 @@ function App() {
                                                 }}
                                                 required
                                             />
-                                            <Field.HelperText>Example: {placeholders(hostName as string)}</Field.HelperText>
+                                            <Field.HelperText>Example: {examples(hostName as string)}</Field.HelperText>
                                         </Field.Root>
 
                                         <Button loading={loading} type="submit">Preview Bracket</Button>

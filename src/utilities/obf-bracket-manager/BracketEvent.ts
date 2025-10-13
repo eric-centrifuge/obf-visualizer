@@ -75,28 +75,19 @@ class BracketEvent {
             }
         }
 
-        // if (sets) this.mapSets(sets)
+        if (sets) this.mapSets(sets)
     }
 
-    mapSets (sets: ISet[]) {
-        if (!sets.length) return sets
-        sets
+    mapSets (importedSets: ISet[]) {
+        importedSets
             .forEach((importedSet) => {
-                const bracketSet =
-                    this.sets.find((set) => {
-                        return `${set.setId}` === `${importedSet.setID}`
-                    })
+                const bracketSet = this.sets.find((set) => `${set.setId}` === `${importedSet.setID}`)
 
                 if (bracketSet) {
                     bracketSet.status = importedSet.status
                     bracketSet.entrant1Result = importedSet.entrant1Result
                     bracketSet.entrant2Result = importedSet.entrant2Result
                     bracketSet.other = importedSet.other
-
-                    if (importedSet.status === SetStatus.Completed) {
-                        bracketSet.updateScore(true, importedSet.entrant1Score)
-                        bracketSet.updateScore(false, importedSet.entrant2Score)
-                    }
 
                     if (importedSet.entrant1ID) {
                         const foundEntrant = this.entrants!.find((entrant) => entrant.entrantID === importedSet.entrant1ID)
@@ -113,10 +104,6 @@ class BracketEvent {
                             bracketSet.updateScore(false, importedSet.entrant2Score)
                         }
                     }
-
-                    if (importedSet.status === SetStatus.Pending || importedSet.status === SetStatus.Started) {
-                        bracketSet.status = importedSet.status as SetStatus
-                    }
                 }
             })
     }
@@ -127,7 +114,7 @@ class BracketEvent {
             initialSeed: entrant.initialSeed || index + 1,
             entrantTag: entrant.entrantTag,
             finalPlacement: entrant.finalPlacement,
-            other: entrant.other,
+            other: { ...entrant.other },
         }))
     }
 

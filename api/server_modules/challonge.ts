@@ -87,16 +87,30 @@ const extractEntrantData = (tournament: any) => {
                     }
                 ],
                 other: {
-                    image,
+                    image: image || "null",
                 }
             } as unknown as IEntrant)
         })
 }
 
+const sortSetsByIdentifier = (sets) => {
+    return sets.sort((setA, setB) => {
+        if (setA.match.identifier < setB.match.identifier) return -1
+        else if (setA.match.identifier > setB.match.identifier) return 1
+        else return 0
+    })
+}
+
 const extractSetData = (tournament: any) => {
-    return tournament.matches
-        .map((match) => {
-            const { match: set } = match
+    const { matches } =  tournament
+    const winnersSets = sortSetsByIdentifier(matches.filter((data) => data.match.round > 0))
+    const loserSets = sortSetsByIdentifier(matches.filter((data) => data.match.round < 0))
+    const winnersFinals = winnersSets.pop()
+    const reorderedMatches = [winnersSets, loserSets, winnersFinals].flat()
+
+    return reorderedMatches
+        .map((data, index) => {
+            const { match: set } = data
             const {
                 id: setID,
                 state,
@@ -104,8 +118,8 @@ const extractSetData = (tournament: any) => {
                 player2_id: entrant2ID,
                 scores_csv: scores,
                 identifier: uuid,
-                winner_id: winnerID,
-                loser_id: loserID,
+                winner_id: winner,
+                loser_id: loser,
                 player1_prereq_match_id: entrant1PrevSetID,
                 player2_prereq_match_id: entrant2PrevSetID,
                 started_at: startTime,
@@ -114,7 +128,7 @@ const extractSetData = (tournament: any) => {
             } = set
 
             return ({
-                setID,
+                setID: `${index + 1}`,
                 state,
                 entrant1ID,
                 entrant2ID,
@@ -124,10 +138,11 @@ const extractSetData = (tournament: any) => {
                 entrant2PrevSetID,
                 roundID: `${roundID}`,
                 other: {
+                    id: setID,
                     startTime,
                     endTime,
-                    winnerID,
-                    loserID,
+                    winner,
+                    loser,
                     uuid
                 }
             } as unknown as ISet)
