@@ -102,6 +102,7 @@ const extractSetData = (tournament: any) => {
 
     return reorderedMatches
         .map((data, index) => {
+            if (!data) return undefined
             const { match: set } = data
             const {
                 id: setID,
@@ -138,5 +139,5 @@ const extractSetData = (tournament: any) => {
                     uuid
                 }
             } as unknown as ISet)
-        })
+        }).filter((set) => set)
 }
