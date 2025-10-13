@@ -21,6 +21,7 @@ import {EntrantsContext, EventContext, SetsContext} from "./contexts/main.tsx"
 import {OBFEvent} from "./types/obf.ts"
 import {FaExternalLinkAlt, FaGithub} from "react-icons/fa"
 import {Tooltip} from "./components/ui/tooltip"
+import packageJSON from "../package.json"
 
 function App() {
     const [tournamentData, setTournamentData] = useState<OBFEvent|undefined>(undefined)
@@ -32,7 +33,7 @@ function App() {
         const api = data.get("hostname") as string
         const url = new URL(data.get("url") as string)
 
-        if (!api.includes(url.hostname)) {
+        if (!url.hostname.includes(api)) {
             toaster.error({
                 title: "Error",
                 description: "Invalid URL. Please ensure the URL is from the selected API.",
@@ -77,7 +78,7 @@ function App() {
                     <header>
                         <VStack>
                             <Heading size={"3xl"}>Open Bracket Visualizer</Heading>
-                            <Text>v1.0.0</Text>
+                            <Text>v{packageJSON.version}</Text>
                         </VStack>
                     </header>
                 </Container>

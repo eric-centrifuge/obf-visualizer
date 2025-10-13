@@ -78,7 +78,7 @@ export const getStartggEvent = async (slug: string) => {
         const { event } = data
         return ({
             name: event.tournament.name,
-            numberEntrants: event.numEntrants,
+            numberEntrants: event.entrants.pageInfo.total,
             tournamentStructure: tournamentType(event.tournament.tournamentType),
             date: event.startAt,
             originURL: `https://start.gg/${event.slug}`,
