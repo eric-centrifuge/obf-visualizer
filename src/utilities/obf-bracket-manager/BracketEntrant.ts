@@ -3,25 +3,25 @@ export class BracketEntrant {
     entrantTag = ""
     initialSeed: number
     finalPlacement?: number
-    other: { [key: string]: never }
+    other: { [key: string]: any }
 
     constructor(props: {
-        entrantTag: string;
+        entrantTag: string
         other: {
-            image: string | null;
-            seed: number;
-            misc: string | null;
-            username: string;
-            finalRank: number | null;
-            groupId: string;
-            email?: string;
-            tournamentId: number;
-            name: string;
-            timestamps: { created_at: Date; updated_at: Date };
+            image: string
+            seed: number
+            misc: string
+            username: string
+            finalRank: number
+            groupId: string
+            email?: string
+            tournamentId: number
+            name: string
+            timestamps: { created_at: Date; updated_at: Date }
             states: { active: boolean }
-        } | {};
-        initialSeed: number;
-        finalPlacement: number;
+        }
+        initialSeed: number
+        finalPlacement: number
         entrantID: string
     }) {
         const {
@@ -35,7 +35,7 @@ export class BracketEntrant {
         this.initialSeed = initialSeed || 0
         this.entrantTag = entrantTag
         this.finalPlacement = finalPlacement || 0
-        this.other = other || {}
+        this.other = other
     }
 
     setSeed(seed: number) {

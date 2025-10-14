@@ -1,22 +1,25 @@
 import {Breadcrumb, Center, GridItem, HStack, SimpleGrid} from "@chakra-ui/react"
 import {useContext} from "react"
-import {BracketEventContext, EntrantsContext, EventContext, SetContext} from "../../../contexts/main"
+import {EntrantsContext, SetContext, SetsContext} from "../../../contexts/main"
 import {MdChevronRight} from "react-icons/md"
 import EntrantProfile from "./EntrantProfile"
 import {generateRoundLabel} from "../../../utilities"
 import SetStateBadge from "../../badges/SetStateBadge"
 
 const SetOverview = () => {
-    const event = useContext(EventContext)
     const entrants = useContext(EntrantsContext)
-    const bracket = useContext(BracketEventContext)
+    const sets = useContext(SetsContext)
     const set = useContext(SetContext)
     const player1 = entrants.find((entrant) => entrant.entrantID === set.entrant1ID)
     const player2 = entrants.find((entrant) => entrant.entrantID === set.entrant2ID)
-    const numberOfRounds = bracket.sets
-        .filter((bracketSet) => bracketSet.type === (+set.roundID ? "winners" : "losers"))
-        .map((set) => set.round)
-        .reduce((previousValue, currentValue) => previousValue > currentValue ? previousValue : currentValue)
+    const numberOfWinnersRounds = sets
+        .filter((set) => +set.roundID > 0)
+        .map((set) => parseInt(set.roundID))
+        .sort()
+    const numberOfLosersRounds = sets
+        .filter((set) => +set.roundID < 0)
+        .map((set) => parseInt(set.roundID))
+        .sort()
 
     return (
         <SimpleGrid columns={2} h={"100%"} gap={5}>
@@ -28,7 +31,7 @@ const SetOverview = () => {
                                 {
                                     generateRoundLabel({
                                         set,
-                                        numberOfRounds: event.tournamentStructure.toLowerCase() === "single elimination" ? numberOfRounds + 1 : numberOfRounds
+                                        numberOfRounds: (+set.roundID > 0 ? numberOfWinnersRounds.pop() : numberOfLosersRounds.pop()) || 0,
                                     })
                                 }
                             </Breadcrumb.Item>

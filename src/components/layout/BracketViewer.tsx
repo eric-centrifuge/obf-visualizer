@@ -15,7 +15,6 @@ import BracketSet from "../../utilities/obf-bracket-manager/BracketSet"
 import {useContext, useEffect, useState} from "react"
 import {
     BracketEventContext,
-    BracketSetContext,
     BracketViewerConfigsContext,
     EntrantsContext,
     EventContext,
@@ -41,7 +40,7 @@ const BracketViewer = () => {
         layout: event.tournamentStructure
     })
 
-    const [currentSet, setCurrentSet] = useState(undefined as unknown as ISet | undefined)
+    const [currentSet, setCurrentSet] = useState(undefined as unknown as ISet)
     const [open, setOpen] = useState(false)
     const unsupported = bracket.layout.toLowerCase() !== "single elimination" && bracket.layout.toLowerCase() !== "double elimination"
     const bracketViewerConfigs = {
@@ -139,7 +138,7 @@ const BracketViewer = () => {
 
     return (
         <BracketEventContext.Provider value={bracket}>
-            <BracketSetContext value={currentSet}>
+            <SetContext value={currentSet}>
                 <BracketViewerConfigsContext value={bracketViewerConfigs}>
                     <Box h={"60vh"} overflow={"scroll"}>
                         <Box overflow={"visible"} pos={"relative"}>
@@ -239,7 +238,7 @@ const BracketViewer = () => {
                                   <Dialog.Body mb={5}>
                                     <SetOverview />
                                   </Dialog.Body>
-                                  {/*@ts-expect-error ts(2322)*/}
+                                    {/*@ts-expect-error ts(2322)*/}
                                   <Dialog.CloseTrigger asChild>
                                     <CloseButton variant={"solid"} size={"lg"} />
                                   </Dialog.CloseTrigger>
@@ -250,7 +249,7 @@ const BracketViewer = () => {
                         </SetContext>
                     }
                 </BracketViewerConfigsContext>
-            </BracketSetContext>
+            </SetContext>
         </BracketEventContext.Provider>
     )
 }

@@ -1,8 +1,7 @@
 {
-  "name": "obf-bracket-manager",
-  "version": "1.0.0",
+  "name": "@jaxvex/obf-bracket-manager",
+  "version": "1.0.5",
   "description": "A JavaScript utility for managing brackets using the Open Bracket Format.",
-  "main": "BracketEvent.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

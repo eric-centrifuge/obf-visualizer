@@ -1,6 +1,5 @@
-import BracketEntrant from "@/utility/classes/bracket/BracketEntrant";
-import {SetGameResult} from "@/types/obf";
-
+import BracketEntrant from "./BracketEntrant.js"
+import {SetGameResult} from "./obf.js"
 
 export class BracketSet {
     setId: number | undefined = undefined
@@ -18,7 +17,7 @@ export class BracketSet {
     entrant2Reported: boolean = false
     leftSet: BracketSet | undefined
     rightSet: BracketSet | undefined
-    parentSet
+    parentSet: BracketSet | undefined
     leftWinnerSet: BracketSet | undefined
     rightWinnerSet: BracketSet | undefined
     loserSet: BracketSet | undefined
@@ -105,7 +104,7 @@ export class BracketSet {
         if (this.type === "losers") return false
         if (!this.loserSet) return false
         if (!this.loserSet.leftWinnerSet) return false
-        return this.loserSet.leftWinnerSet!.setId === this.setId;
+        return this.loserSet.leftWinnerSet!.setId === this.setId
 
     }
 
@@ -113,7 +112,7 @@ export class BracketSet {
         if (this.type === "losers") return false
         if (!this.loserSet) return false
         if (!this.loserSet.rightWinnerSet) return false
-        return this.loserSet.rightWinnerSet!.setId === this.setId;
+        return this.loserSet.rightWinnerSet!.setId === this.setId
 
     }
 

@@ -1,11 +1,5 @@
-import BracketSet from "./BracketSet.ts"
-import BracketEntrant from "./BracketEntrant.ts"
-import {IEntrant, ISet, SetGameResult, SetStatus} from "./obf.ts"
-
-interface BracketMetaData {
-    date?: string
-    gameName?: string
-}
+import BracketSet from "./BracketSet.js"
+import BracketEntrant from "./BracketEntrant.js"
 
 class BracketEvent {
     id?: string
@@ -18,14 +12,14 @@ class BracketEvent {
     entrants?: Array<BracketEntrant>
     sets: Array<BracketSet>
     layout: string
-    other?: BracketMetaData
+    other?: {[key: string]: any}
 
     constructor(props: {
         id?: string
         sets?: ISet[]
         entrants: IEntrant[]
         layout: string
-        metaData?: BracketMetaData
+        metaData?: {[key: string]: any}
         state?: string
     }) {
         const {
@@ -47,7 +41,7 @@ class BracketEvent {
         if (this.root) {
             this.winnersRoot = this.root
             if (metaData) this.addMetaData(metaData)
-            this.assignEntrants()
+            if (this.entrants.length) this.assignEntrants()
             if (layout.toLowerCase() === "single elimination") {
                 new Array(this.calculateRounds())
                     .fill(0)
@@ -565,7 +559,7 @@ class BracketEvent {
     }
 
     isPowerOf2(x: number) { return (Math.log2(x) % 1 === 0) }
-    addMetaData(data: BracketMetaData) {
+    addMetaData(data: { [key: string]: any }) {
         if (this.other) this.other = Object.assign(this.other, data)
     }
 }
