@@ -1,48 +1,52 @@
-import {
-    AbsoluteCenter,
-    Box,
-    Center,
-    Container,
-    Dialog,
-    EmptyState,
-    Heading,
-    Portal,
-    Text,
-    VStack
-} from "@chakra-ui/react"
-import BracketEvent from "../../utilities/obf-bracket-manager/BracketEvent"
-import BracketSet from "../../utilities/obf-bracket-manager/BracketSet"
+import {AbsoluteCenter, Box, Container, Dialog, EmptyState, Group, List, Portal, Separator} from "@chakra-ui/react"
 import {useContext, useEffect, useState} from "react"
-import {
-    BracketEventContext,
-    BracketViewerConfigsContext,
-    EntrantsContext,
-    EventContext,
-    SetContext,
-    SetsContext
-} from "../../contexts/main"
+import {BracketViewerConfigsContext, EntrantsContext, EventContext, SetContext, SetsContext} from "../../contexts/main"
 import {BiSolidHide} from "react-icons/bi"
-import BracketViewerSet from "./BracketViewerSetTemplate"
-import BracketViewerStages from "./BracketViewerStages"
-import {EventState, ISet} from "../../types/obf.ts"
+import BracketViewerSet from "./BracketViewerSet.tsx"
+import {ISet} from "../../types/obf.ts"
 import {CloseButton} from "../ui/close-button"
 import SetOverview from "../overlays/set-overview/SetOverview"
-import {convertBracketSetToOBF} from "../../utilities";
+import BracketViewerStages from "./BracketViewerStages.tsx";
+
 
 const BracketViewer = () => {
     const event = useContext(EventContext)
     const entrants = useContext(EntrantsContext)
     const sets = useContext(SetsContext)
 
-    const bracket = new BracketEvent({
-        entrants,
-        sets,
-        layout: event.tournamentStructure
-    })
+    const roundIDs =
+        Array.from(
+            new Set(
+                sets
+                    .map((set) => set.roundID)
+                    .filter((roundID) => roundID)
+            )
+        )
 
+    const setsByRound =
+        roundIDs
+            .map((roundID) => sets.filter((set) => set.roundID === roundID))
+            .map((sets, index, rounds) => {
+                return sets.map((set) => {
+                    if (!rounds[index + 1]) return set
+                    rounds.forEach((round) => {
+                        const entrant1Parent =
+                            round.find((parent) => parent.entrant1PrevSetID === set.other.id)
+                        const entrant2Parent =
+                            round.find((parent) => parent.entrant2PrevSetID === set.other.id)
+                        if (entrant1Parent) set.entrant1NextSetID = entrant1Parent.other.id
+                        if (entrant2Parent) set.entrant2NextSetID = entrant2Parent.other.id
+                    })
+                    return set
+                })
+            })
+
+    const winnerSets = setsByRound.flat().filter((set) => parseInt(set.roundID) > 0)
+    const loserSets = setsByRound.flat().filter((set) => parseInt(set.roundID) < 0)
+    const finals = winnerSets.slice(-2)[0]
+    const losersFinals = loserSets.slice(-1)[0]
     const [currentSet, setCurrentSet] = useState(undefined as unknown as ISet)
     const [open, setOpen] = useState(false)
-    const unsupported = bracket.layout.toLowerCase() !== "single elimination" && bracket.layout.toLowerCase() !== "double elimination"
     const bracketViewerConfigs = {
         setWidth: 220,
         setHeight: 65,
@@ -59,11 +63,8 @@ const BracketViewer = () => {
         setPrimaryColor: "var(--chakra-colors-bg)"
     }
     const {
-        setWidth,
-        margin,
-        lineWidth,
         setHeight,
-        lineColor,
+        setWidth
     } = bracketViewerConfigs
 
     useEffect(() => {
@@ -87,170 +88,179 @@ const BracketViewer = () => {
         </Container>
     )
 
-    const RenderChildren = (set: BracketSet) => {
-        const hasChildren = set.leftSet || set.rightSet
-        const hasBothChildren = set.leftSet && set.rightSet
-        const verticalLinkStyle = {
-            content: '""',
-            position: 'absolute',
-            display: "inline-block",
-            height: `calc(50% - ${setHeight/4}px)`,
-            right: `-${(setWidth/2) - margin*3 - lineWidth*4}px`,
-            top: `calc(50% - ${setHeight/4}px)`,
-            transform: "translateY(-50%)",
-            width: `${lineWidth || 2}px`,
-            backgroundColor: lineColor,
-        }
-        const children = () => {
-            return (
-                <Box
-                    as={"ul"}
-                    pos={"relative"}
-                    _after={hasBothChildren && verticalLinkStyle}>
-                    {set.leftSet && RenderChildren(set.leftSet)}
-                    {set.rightSet && RenderChildren(set.rightSet)}
-                </Box>
-            )
-        }
+    const RenderTree = ({
+        root,
+        nodes,
+        isLosersRoot = false
+    }: {
+        root: ISet
+        nodes: ISet[]
+        isLosersRoot?: boolean
+    }) => {
+        const winnersSide = parseInt(root.roundID) > 0
+        const hasChildren = !!root.entrant1PrevSetID || !!root.entrant2PrevSetID
+        const leftSet = nodes.find((leftSet) => leftSet.other.id === root.entrant1PrevSetID)
+        const rightSet = nodes.find((rightSet) => (
+            rightSet.other.id === root.entrant2PrevSetID &&
+            (winnersSide ? parseInt(rightSet.roundID) > 0 : parseInt(rightSet.roundID) < 0)
+        ))
 
         return (
-            <Box
-                as={"li"}
-                position={"relative"}
+            <List.Item
                 display={"flex"}
                 flexDir={"row-reverse"}>
-                <Box
-                    display={"flex"}
-                    flexDir={"column"}
-                    justifyContent={"center"}>
-                    <BracketViewerSet
-                        set={set}
-                        onMatchClick={(set) => {
-                            if (!sets.length) return
-                            setCurrentSet(convertBracketSetToOBF(set))
-                        }}
-                    />
-                </Box>
-                { hasChildren && children() }
-            </Box>
+                <BracketViewerSet
+                    set={root}
+                    isLosersRoot={isLosersRoot}
+                    onMatchClick={(set) => set && setCurrentSet(set)}
+                />
+                {
+                    hasChildren &&
+                    <List.Root zIndex={0}>
+                        {
+                            leftSet ?
+                                <Box pos={"relative"} transform={parseInt(root.roundID) > 0 && leftSet && !rightSet ? `translateY(${setHeight - 32}px)` : undefined}>
+                                    {RenderTree({root: leftSet, nodes, isLosersRoot: false})}
+                                    {
+                                        rightSet && (
+                                            <Separator
+                                                position={"absolute"}
+                                                top={`-7px`}
+                                                right={`24px`}
+                                                transform={"auto"}
+                                                translateY={`100%`}
+                                                translateX={`${setWidth / 2}px`}
+                                                borderColor={"border.emphasized"}
+                                                size={"md"}
+                                                orientation={"vertical"}
+                                                h={"50%"}
+                                            />
+                                        )
+                                    }
+                                </Box> :
+                                parseInt(root.roundID) > 0 && <Box
+                                    w={"full"}
+                                    h={`${setHeight}px`}
+                                />
+                        }
+                        {
+                            rightSet ?
+                                <Box pos={"relative"} transform={parseInt(root.roundID) > 0 && rightSet && !leftSet ? `translateY(-${setHeight - 32}px)` : undefined}>
+                                    {RenderTree({root: rightSet, nodes, isLosersRoot: false})}
+                                    {
+                                        leftSet && (
+                                            <Separator
+                                                position={"absolute"}
+                                                bottom={`7px`}
+                                                right={`24px`}
+                                                transform={"auto"}
+                                                translateY={`-100%`}
+                                                translateX={`${setWidth / 2}px`}
+                                                borderColor={"border.emphasized"}
+                                                size={"md"}
+                                                orientation={"vertical"}
+                                                h={"50%"}
+                                            />
+                                        )
+                                    }
+                                </Box> :
+                                parseInt(root.roundID) > 0 && <Box
+                                    w={"full"}
+                                    h={`${setHeight}px`}
+                                />
+                        }
+                    </List.Root>
+                }
+            </List.Item>
         )
     }
 
     return (
-        <BracketEventContext.Provider value={bracket}>
-            <SetContext value={currentSet}>
-                <BracketViewerConfigsContext value={bracketViewerConfigs}>
-                    <Box h={"60vh"} overflow={"scroll"}>
-                        <Box overflow={"visible"} pos={"relative"}>
-                            {
-                                unsupported &&
-                                <Center>
-                                  <Heading>
-                                    <Text display={"inline-block"}>{bracket.layout}</Text> brackets not supported.
-                                  </Heading>
-                                </Center>
-                            }
-                            {
-                                bracket.layout.toLowerCase() === "single elimination" &&
-                                <>
-                                  <Container maxW={"full"} px={0} mb={5} pos={"sticky"} top={`20px`} zIndex={10}>
-                                    <BracketViewerStages bracketRoot={bracket.root!} />
-                                  </Container>
+        <SetContext value={currentSet}>
+            <BracketViewerConfigsContext value={bracketViewerConfigs}>
+                <Box h={"60vh"} overflow={"scroll"}>
+                    <Box overflow={"visible"} pos={"relative"}>
+                        {
+                            event.tournamentStructure.toLowerCase() === "single elimination" &&
+                            <>
+                              <BracketViewerStages sets={winnerSets}/>
+                              <List.Root display={"flex"} flexDirection={"row"}>
+                                  {
+                                      RenderTree({
+                                          root: winnerSets.slice(-1)[0],
+                                          nodes: winnerSets
+                                      })
+                                  }
+                              </List.Root>
+                            </>
+                        }
+                        {
+                            event.tournamentStructure.toLowerCase() === "double elimination" &&
+                            <>
+                              <BracketViewerStages sets={winnerSets}/>
+                              <Group
+                                  attached
+                                  display={"flex"}
+                                  flexDirection={"row"}>
+                                <List.Root>
+                                    {
+                                        RenderTree({
+                                            root: finals,
+                                            nodes: winnerSets,
+                                        })
+                                    }
+                                </List.Root>
+                                <BracketViewerSet
+                                    set={winnerSets.slice(-1)[0]}
+                                    onMatchClick={(set) => set.entrant1ID && set.entrant2ID && setCurrentSet(set)}
+                                />
+                              </Group>
 
-                                  <Box as={"ul"} display={"flex"} pt={10}>
-                                      { RenderChildren(bracket.root!) }
-                                  </Box>
-                                </>
-                            }
-                            {
-                                bracket.layout.toLowerCase() === "double elimination" &&
-                                <>
-                                  <Container maxW={"full"} px={0} pos={"sticky"} top={`${margin}px`} mb={`${margin}px`} zIndex={20}>
-                                    <BracketViewerStages bracketRoot={bracket.winnersRoot!} reset />
-                                  </Container>
-
-                                  <Box as={"ul"} display={"flex"} pt={5}>
-                                    <Box
-                                        as={"li"}
-                                        position={"relative"}
-                                        display={"flex"}
-                                        flexDir={"row-reverse"}>
-                                      <Box
-                                          display={"flex"}
-                                          flexDir={"column"}
-                                          justifyContent={"center"}>
-                                        <BracketViewerSet
-                                            set={bracket.winnersRoot!}
-                                            onMatchClick={
-                                                (set) => {
-                                                    if (!sets.length || event.state === EventState.Open) return
-                                                    setCurrentSet(convertBracketSetToOBF(set))
-                                                }
-                                            }
-                                        />
-                                      </Box>
-                                      <Box as={"ul"} display={"flex"}>
-                                          { RenderChildren(bracket.winnersRoot!.leftSet!) }
-                                      </Box>
-                                    </Box>
-                                    <VStack h={"100%"} justifyContent={"center"}>
-                                        {
-                                            <BracketViewerSet
-                                                set={bracket.winnersRoot!.loserSet!}
-                                                onMatchClick={
-                                                    (set) => {
-                                                        if (!sets.length) return
-                                                        setCurrentSet(convertBracketSetToOBF(set))
-                                                    }
-                                                }
-                                            />
-                                        }
-                                    </VStack>
-                                  </Box>
-
-                                  <Container maxW={"full"} px={0} mb={5} pos={"sticky"} top={`20px`} zIndex={20}>
-                                    <BracketViewerStages bracketRoot={bracket.losersRoot!}/>
-                                  </Container>
-
-                                  <Box as={"ul"} display={"flex"}>
-                                      {RenderChildren(bracket.losersRoot!)}
-                                  </Box>
-                                </>
-                            }
-                        </Box>
+                              <BracketViewerStages sets={loserSets}/>
+                              <List.Root mt={5} display={"flex"} flexDirection={"row"}>
+                                  {
+                                      RenderTree({
+                                          root: losersFinals,
+                                          nodes: loserSets,
+                                          isLosersRoot: true,
+                                      })
+                                  }
+                              </List.Root>
+                            </>
+                        }
                     </Box>
-                    {
-                        !!currentSet &&
-                        <SetContext value={currentSet}>
-                          <Dialog.Root
-                              immediate={true}
-                              open={open}
-                              onOpenChange={(e: {open: boolean}) => setOpen(e.open)}
-                              onExitComplete={() => setOpen(false)}
-                              size={"cover"}
-                              placement={"center"}
-                              closeOnInteractOutside={false}
-                              scrollBehavior={"inside"}>
-                            <Portal>
-                              <Dialog.Backdrop />
-                              <Dialog.Positioner>
-                                <Dialog.Content>
-                                  <Dialog.Body mb={5}>
-                                    <SetOverview />
-                                  </Dialog.Body>
-                                    {/*@ts-expect-error ts(2322)*/}
-                                  <Dialog.CloseTrigger asChild>
-                                    <CloseButton variant={"solid"} size={"lg"} />
-                                  </Dialog.CloseTrigger>
-                                </Dialog.Content>
-                              </Dialog.Positioner>
-                            </Portal>
-                          </Dialog.Root>
-                        </SetContext>
-                    }
-                </BracketViewerConfigsContext>
-            </SetContext>
-        </BracketEventContext.Provider>
+                </Box>
+                {
+                    !!currentSet &&
+                    <SetContext value={currentSet}>
+                      <Dialog.Root
+                          immediate={true}
+                          open={open}
+                          onOpenChange={(e: {open: boolean}) => setOpen(e.open)}
+                          onExitComplete={() => setOpen(false)}
+                          size={"cover"}
+                          placement={"center"}
+                          closeOnInteractOutside={false}
+                          scrollBehavior={"inside"}>
+                        <Portal>
+                          <Dialog.Backdrop />
+                          <Dialog.Positioner>
+                            <Dialog.Content>
+                              <Dialog.Body mb={5}>
+                                <SetOverview />
+                              </Dialog.Body>
+                                {/*@ts-expect-error ts(2322)*/}
+                              <Dialog.CloseTrigger asChild>
+                                <CloseButton variant={"solid"} size={"lg"} />
+                              </Dialog.CloseTrigger>
+                            </Dialog.Content>
+                          </Dialog.Positioner>
+                        </Portal>
+                      </Dialog.Root>
+                    </SetContext>
+                }
+            </BracketViewerConfigsContext>
+        </SetContext>
     )
 }
 

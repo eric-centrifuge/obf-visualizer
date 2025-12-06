@@ -101,7 +101,7 @@ const extractSetData = (tournament: any) => {
     const reorderedMatches = [winnersSets, loserSets, winnersFinals].flat()
 
     return reorderedMatches
-        .map((data, index) => {
+        .map((data) => {
             if (!data) return undefined
             const { match: set } = data
             const {
@@ -121,7 +121,7 @@ const extractSetData = (tournament: any) => {
             } = set
 
             return ({
-                setID: `${index + 1}`,
+                setID: uuid,
                 state,
                 entrant1ID,
                 entrant2ID,

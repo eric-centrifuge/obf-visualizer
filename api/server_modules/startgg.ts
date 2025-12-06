@@ -3,7 +3,6 @@ import {IEntrant, IEvent, ISet} from "../../src/types/obf.ts";
 export const startggRequest = async ({
  data
 }: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any
 }) => {
     const response = await fetch(`${process.env.STARTGG_API}`, {
@@ -186,6 +185,7 @@ export const getStartggSets = async (slug: string) => {
                 state
                 totalGames
                 fullRoundText
+                round
                 games {
                   winnerId
                   orderNum
@@ -234,6 +234,7 @@ export const getStartggSets = async (slug: string) => {
             sets.push({
                 setID: set.identifier,
                 status: set.state,
+                roundID: `${set.round}`,
                 entrant1ID: set.slots[0].entrant ? set.slots[0].entrant.id : "null",
                 entrant2ID: set.slots[1].entrant ? set.slots[1].entrant.id : "null",
                 entrant1PrevSetID: set.slots[0].prereqId,

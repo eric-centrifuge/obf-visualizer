@@ -26,7 +26,7 @@ import packageJSON from "../package.json"
 function App() {
     const [tournamentData, setTournamentData] = useState<OBFEvent|undefined>(undefined)
     const formRef = useRef<HTMLFormElement>(null)
-    const [hostName, setHostName] = useState<string | null>("www.start.gg")
+    const [hostName, setHostName] = useState<string | null>("challonge.com")
     const [loading, setLoading] = useState(false)
 
     const onSubmit = (data: FormData) => {
@@ -120,18 +120,18 @@ function App() {
                                                 <SegmentGroup.Indicator />
                                                 <SegmentGroup.Items
                                                     items={[
-                                                        {
-                                                            value: "www.start.gg",
-                                                            label: <>start.gg</>
-                                                        },
+                                                        // {
+                                                        //     value: "www.start.gg",
+                                                        //     label: <>start.gg</>
+                                                        // },
                                                         {
                                                             value: "challonge.com",
                                                             label: <>challonge</>
                                                         },
-                                                        {
-                                                            value: "mtch.gg",
-                                                            label: <>mtch.gg</>
-                                                        }
+                                                        // {
+                                                        //     value: "mtch.gg",
+                                                        //     label: <>mtch.gg</>
+                                                        // }
                                                     ]}
                                                 />
                                             </SegmentGroup.Root>
@@ -165,7 +165,7 @@ function App() {
                     }
                     {
                         tournamentData && (
-                            <VStack>
+                            <VStack mb={5}>
                                 <Heading fontSize={"1.5rem"} my={5}>
                                     <Group gap={5}>
                                         <FaExternalLinkAlt />
