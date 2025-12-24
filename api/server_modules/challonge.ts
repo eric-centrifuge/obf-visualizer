@@ -13,7 +13,7 @@ async function getData(endpoint = "") {
 }
 
 
-export const getChallongeEventInfo = async (tournamentId: string) => {
+export const getChallongeEvent = async (tournamentId: string) => {
     const params = new URLSearchParams()
 
     params.set("api_key", `${process.env.CHALLONGE_KEY}`)
@@ -44,9 +44,42 @@ const extractEventData = (tournament: any) => {
         state,
     } = tournament
 
+    const convertTournamentStructure = (state: string) => {
+        const EventState = {
+            Open: "open",
+            Pending: "pending",
+            Started: "started",
+            Completed: "completed",
+            Finalized: "finalized",
+        }
+
+        switch (state) {
+            case "pending":
+                return EventState.Open
+            case "checking_in":
+                return EventState.Pending
+            case "checked_in":
+                return EventState.Pending
+            case "accepting_predictions":
+                return EventState.Open
+            case "group_stages_underway":
+                return EventState.Started
+            case "group_stages_finalized":
+                return EventState.Started
+            case "underway":
+                return EventState.Started
+            case "awaiting_review":
+                return EventState.Completed
+            case "complete":
+                return EventState.Finalized
+            default:
+                return EventState.Open
+        }
+    }
+
     return ({
         name,
-        state,
+        state: convertTournamentStructure(state),
         numberEntrants: tournament.participants.length,
         originURL: `https://challonge.com/${tournamentId}`,
         tournamentStructure,
@@ -63,7 +96,7 @@ const extractEventData = (tournament: any) => {
 
 const extractEntrantData = (tournament: any) => {
     return tournament.participants
-        .map((participant) => {
+        .map((participant: any) => {
             const { participant: entrant } = participant
             const {
                 id: entrantID,
@@ -95,8 +128,8 @@ const extractEntrantData = (tournament: any) => {
 
 const extractSetData = (tournament: any) => {
     const { matches } =  tournament
-    const winnersSets = matches.filter((data) => data.match.round > 0)
-    const loserSets = matches.filter((data) => data.match.round < 0)
+    const winnersSets = matches.filter((data: any) => data.match.round > 0)
+    const loserSets = matches.filter((data: any) => data.match.round < 0)
     const winnersFinals = winnersSets.pop()
     const reorderedMatches = [winnersSets, loserSets, winnersFinals].flat()
 
@@ -135,8 +168,7 @@ const extractSetData = (tournament: any) => {
                     startTime,
                     endTime,
                     winner,
-                    loser,
-                    uuid
+                    loser
                 }
             } as unknown as ISet)
         }).filter((set) => set)

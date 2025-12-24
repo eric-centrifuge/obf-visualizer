@@ -21,6 +21,7 @@ import {EntrantsContext, EventContext, SetsContext} from "./contexts/main.tsx"
 import {OBFEvent} from "./types/obf.ts"
 import {FaExternalLinkAlt, FaGithub} from "react-icons/fa"
 import {Tooltip} from "./components/ui/tooltip"
+// @ts-expect-error ts(2307)
 import packageJSON from "../package.json"
 
 function App() {
@@ -128,10 +129,10 @@ function App() {
                                                             value: "challonge.com",
                                                             label: <>challonge</>
                                                         },
-                                                        // {
-                                                        //     value: "mtch.gg",
-                                                        //     label: <>mtch.gg</>
-                                                        // }
+                                                        {
+                                                            value: "mtch.gg",
+                                                            label: <>mtch.gg</>
+                                                        }
                                                     ]}
                                                 />
                                             </SegmentGroup.Root>
