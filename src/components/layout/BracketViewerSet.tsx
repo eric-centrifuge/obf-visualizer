@@ -2,16 +2,16 @@ import {AbsoluteCenter, Box, Group, VStack} from "@chakra-ui/react"
 import {useContext} from "react"
 import {BracketViewerConfigsContext, EntrantsContext, SetContext, SetsContext} from "../../contexts/main"
 import {ISet} from "../../types/obf.ts"
-import PlayerNameplate from "./PlayerNameplate.tsx";
+import PlayerNameplate from "./PlayerNameplate.tsx"
 
 const BracketViewerSet = ({
     set,
     isLosersRoot = false,
-    onMatchClick
+    setOnClick
 }: {
     set: ISet
     isLosersRoot?: boolean
-    onMatchClick?: (set: ISet) => void
+    setOnClick?: (set: ISet) => void
 }) => {
     const entrants = useContext(EntrantsContext)
     const sets = useContext(SetsContext)
@@ -31,7 +31,7 @@ const BracketViewerSet = ({
     const leftEntrant = entrants.find((entrant) => entrant.entrantID === set.entrant1ID)
     const rightEntrant = entrants.find((entrant) => entrant.entrantID === set.entrant2ID)
     const nameCardHeight = setHeight/2
-    const parentSet = sets.some((parent) => set.other.id === parent.entrant1PrevSetID || set.other.id === parent.entrant2PrevSetID)
+    const parentSet = sets.some((parent) => setID === parent.entrant1PrevSetID || setID === parent.entrant2PrevSetID)
 
     const horizontalLinkStyle = !isLosersRoot && parentSet ? {
         content: '""',
@@ -52,7 +52,7 @@ const BracketViewerSet = ({
             <Group
                 attached
                 zIndex={1}
-                onClick={() => onMatchClick && onMatchClick(set)}
+                onClick={() => setOnClick && setOnClick(set)}
                 h={`${setHeight}px`}
                 w={`${setWidth}px`}
                 bg={setPrimaryColor}

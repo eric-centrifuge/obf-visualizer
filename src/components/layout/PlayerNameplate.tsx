@@ -39,7 +39,7 @@ const PlayerNameplate = ({
                 </Avatar.Root>
             }
             <Text
-                color={setTextColor}
+                color={(isP1 ? set.entrant1Result === "lose" && "fg.muted" : set.entrant2Result === "lose" && "fg.muted") || setTextColor}
                 whiteSpace={"nowrap"}
                 maxW={`105px`}
                 flexGrow={1}
@@ -58,9 +58,9 @@ const PlayerNameplate = ({
             <Box
                 px={4}
                 height={"100%"}
-                color={setScoreColor}
+                color={(isP1 ? set.entrant1Result === "lose" && "fg.muted" : set.entrant2Result === "lose" && "fg.muted") || setScoreColor}
                 bg={setPrimaryColor}
-                fontWeight={"bold"}
+                fontWeight={(isP1 ? set.entrant1Result === "win" && "bold" : set.entrant2Result === "win" && "bold") || "none"}
                 position={"relative"}>
                 <AbsoluteCenter>
                     { isP1 ? set.entrant1Score : set.entrant2Score }
