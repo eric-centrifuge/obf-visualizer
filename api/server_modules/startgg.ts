@@ -1,4 +1,4 @@
-import {IEntrant, IEvent, ISet} from "../../src/types/obf.ts";
+import {IEntrant, IEvent, ISet} from "../../src/types/obf";
 
 export const startggRequest = async ({
  data
@@ -82,7 +82,7 @@ export const getStartggEvent = async (slug: string) => {
             date: event.startAt,
             originURL: `https://start.gg/${event.slug}`,
             game: event.videogame.displayName,
-            phases: event.phases.map((phase) => phase),
+            phases: event.phases.map((phase: any) => phase),
             other: {
                 startTime: event.startAt,
                 eventID: event.id,
@@ -140,7 +140,7 @@ export const getStartggEntrants = async (slug: string) => {
     }) as any
 
     if (data) {
-        data.event.entrants.nodes.forEach((entrant) => {
+        data.event.entrants.nodes.forEach((entrant: any) => {
             entrants.push({
                 entrantID: entrant.id,
                 initialSeed: entrant.initialSeedNum,
@@ -230,7 +230,7 @@ export const getStartggSets = async (slug: string) => {
     }) as any
 
     if (data) {
-        data.event.sets.nodes.forEach((set) => {
+        data.event.sets.nodes.forEach((set: any) => {
             sets.push({
                 setID: set.identifier,
                 status: set.state,
